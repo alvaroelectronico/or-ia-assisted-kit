@@ -1,0 +1,102 @@
+% =====================================================================
+% TEMPLATE — Data model (methodology asset A-P2-tpl-doc)
+% =====================================================================
+% Purpose: specify the INPUT DATA that defines a problem instance, independently
+% of the solution technique. This is the formal companion to the P1 problem
+% description and the reference that the instance JSON schema (A-P2-tpl-schema)
+% and the instance generator (A-P2-tpl-gen) must both match.
+%
+% Fill every <PLACEHOLDER>; delete guidance comments once done.
+%
+% Golden rule: the data model contains ONLY inputs. Anything the solver chooses
+% (assignments, orderings, groupings, produced objects) is a DECISION and must
+% NOT appear here — say so explicitly in the Scope section.
+%
+% Meant to be \input from a main.tex, after the problem-description .tex, and
+% compiled with a compile.py; see the working example harness in
+% docs/<problem>/ (main.tex + compile.py).
+% =====================================================================
+
+% =====================================================================
+\part{Data model}
+% =====================================================================
+
+\section{Scope}
+% 2–4 sentences. State that this part specifies the input data of an instance,
+% technique-agnostic. Then name explicitly the objects that are DECISIONS (not
+% inputs) so the boundary is unambiguous.
+This part specifies the \textbf{input data} that defines a problem instance,
+independently of the solution technique. <LIST THE DECISION OBJECTS> are
+\emph{decisions} (see the Problem statement) and are therefore \textbf{not}
+part of the input.
+
+\section{Sets}
+% The base index sets of the problem — the "entities" everything else is indexed
+% by. One \item per set, with its symbol and a one-line meaning.
+\begin{description}
+  \item[$<SET_A>$] <meaning of set A (e.g. the entities that place demand)>.
+  \item[$<SET_B>$] <meaning of set B (e.g. the items / units being processed)>.
+\end{description}
+
+\section{<ENTITY> attributes}
+% Per-element attributes of the main entity set (repeat this section per set
+% that carries attributes). Give each attribute its symbol, its domain
+% (\mathbb{R}_{>0}, \mathbb{Z}_{\ge 0}, categorical...), and a one-line meaning.
+% Distinguish numeric attributes (capacities, sizes) from categorical ones
+% (labels consumed by grouping / separation rules).
+For each $<element> \in <SET_B>$:
+\begin{description}
+  \item[$<attr1>_{<element>} > 0$] <numeric attribute and its units>.
+  \item[$<attr2>_{<element>} \in \mathbb{Z}_{>0}$] <integer attribute>.
+  \item[$<catA>_{<element>},\ <catB>_{<element>}$] categorical attributes consumed by the <grouping / separation> rules.
+\end{description}
+
+\section{Relations}
+% OPTIONAL — include only if the problem has relations between elements
+% (compatibility, incompatibility, precedence, adjacency...). Model each as a
+% set of tuples over the base sets. Delete the whole section if unused.
+\begin{description}
+  \item[$<REL> \subseteq \{\,\{a,b\} : a,b \in <SET_B>,\ a \neq b\,\}$] \textbf{<relation name>}: <meaning (e.g. pairs that may never be grouped together)>.
+\end{description}
+
+\section{Demand / inputs}
+% The quantitative demand or workload that drives the problem. Give the symbol,
+% domain, indexing, and any structural property the generator/solver relies on
+% (e.g. sparsity, one instance = one shift/period). If the problem is not
+% demand-driven, rename this section to the equivalent driving input.
+\begin{description}
+  \item[$<q>_{<i>,<j>} \in \mathbb{Z}_{\ge 0}$] <quantity of j requested by i>. The demand is typically \textbf{<sparse/dense>}; <what one instance represents, e.g. a single shift>.
+\end{description}
+
+\section{Operating configuration}
+% Scalar / global parameters that configure the environment (capacities,
+% resource counts, sizes, tolerances). These are the knobs typically varied to
+% build scenarios (see Scenario parameters). One \item each with symbol, domain,
+% meaning, and default if any.
+\begin{description}
+  \item[$<H> \in \mathbb{Z}_{>0}$] <resource count / capacity>.
+  \item[$<V> > 0$] <global size / capacity parameter>.
+  \item[{$<f>_{<i>} \in (0,1]$}] <optional per-element modifier; state its default>.
+\end{description}
+
+\section{Instance}
+% The instance as one explicit tuple: list every set, family of attributes,
+% relation, demand family, and configuration parameter defined above. Then
+% restate that decision objects are derived by the solver and not stored.
+An instance is the tuple
+\[
+  \bigl(\,<SET_A>,\ <SET_B>,\ (<attr1>_{<b>}),\ \ldots,\ <REL>,\ (<q>_{<i>,<j>}),\ <H>,\ <V>,\ (<f>_{<i>})\,\bigr).
+\]
+Every decision object (<list them>) is derived by the solver and is not stored
+in the instance.
+
+\section{Scenario parameters}
+% OPTIONAL — how a single instance is re-solved under varied configurations to
+% produce the study's KPIs. Name the parameters that are swept and why. Delete
+% if the study solves each instance only once.
+To produce the KPIs of <the study>, a single instance is solved under varied
+configurations, chiefly:
+\begin{itemize}
+  \item <parameter 1 swept, e.g. the resource count $<H>$>;
+  \item <parameter 2 swept, e.g. the workload scale>.
+\end{itemize}

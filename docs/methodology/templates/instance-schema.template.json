@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "<PROBLEM NAME> instance",
+  "description": "TEMPLATE (methodology asset A-P2-tpl-schema). Input data for <PROBLEM>. Decisions (<list decision objects>) are NOT part of the instance. Fill every <PLACEHOLDER>, keep the structure, and delete this sentence. Every field here must correspond 1:1 to a symbol in the data-model .tex (A-P2-tpl-doc). Use `additionalProperties: false` everywhere to catch typos; mark truly-optional blocks by leaving them out of `required`.",
+  "type": "object",
+  "required": ["<ENTITY_SET>", "<INDEX_SET>", "demand", "config"],
+  "additionalProperties": false,
+  "properties": {
+    "<ENTITY_SET>": {
+      "type": "array",
+      "description": "The main entity catalog (set with per-element attributes).",
+      "items": {
+        "type": "object",
+        "required": ["id", "<numeric_attr>", "<integer_attr>", "<categorical_attr>"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "<numeric_attr>": { "type": "number", "exclusiveMinimum": 0, "description": "Symbol in data model; its meaning/units." },
+          "<integer_attr>": { "type": "integer", "minimum": 1, "description": "Symbol; meaning." },
+          "<categorical_attr>": { "type": "string", "description": "Categorical label consumed by grouping/separation rules." }
+        }
+      }
+    },
+    "<relation>": {
+      "type": "array",
+      "description": "OPTIONAL relation: unordered id pairs subject to <constraint>. Remove this block if the problem has no relations.",
+      "items": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "<INDEX_SET>": {
+      "type": "array",
+      "description": "Set of ids for the second base set (e.g. the entities that place demand).",
+      "items": { "type": "string" }
+    },
+    "demand": {
+      "type": "array",
+      "description": "Sparse demand/inputs: one entry per (<index>, <entity>) with a positive quantity. Literal key `demand` (like `config`); its inner fields stay placeholders.",
+      "items": {
+        "type": "object",
+        "required": ["<index_ref>", "<entity_ref>", "<quantity>"],
+        "additionalProperties": false,
+        "properties": {
+          "<index_ref>": { "type": "string" },
+          "<entity_ref>": { "type": "string" },
+          "<quantity>": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "description": "Scalar/global operating configuration (the knobs swept to build scenarios).",
+      "required": ["<count_param>", "<size_param>"],
+      "additionalProperties": false,
+      "properties": {
+        "<count_param>": { "type": "integer", "minimum": 1, "description": "Symbol; resource count/capacity." },
+        "<size_param>": { "type": "number", "exclusiveMinimum": 0, "description": "Symbol; global size/capacity." },
+        "<per_index_modifier>": {
+          "type": "object",
+          "description": "OPTIONAL per-<index> modifier keyed by id; value in (0,1]. Remove if unused.",
+          "additionalProperties": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }
+}

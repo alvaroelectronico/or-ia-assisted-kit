@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!--
+  TEMPLATE (methodology asset A-P4-tpl-viz-dynamic) — P4 Solution visualization
+  (DYNAMIC backend).
+
+  Purpose
+  -------
+  A self-contained HTML/JS reference skeleton for the DYNAMIC visualization
+  medium: animate the sequential/temporal structure of a P3 solution. It conforms
+  to the P4 contract (visualization-contract.template.py): the contract's
+  visualize() dispatches to a `render_dynamic(instance, solution, out_path)` that
+  produces an .html artifact by INLINING the instance + solution as JSON into the
+  two placeholders below and writing the result to out_path. Returns that path.
+
+  Design rules
+  ------------
+    * SELF-CONTAINED: no external libraries, no CDN, no network. Pure DOM + JS so
+      the artifact opens offline by double-click and can be emailed/archived.
+    * DATA INLINED: instance/solution are substituted as JSON literals below; the
+      page never fetches anything.
+    * Read-only over the data; deterministic replay.
+    * Depend only on the P2 + P3 schemas.
+
+  How render_dynamic() should produce this file (guidance)
+  --------------------------------------------------------
+    html = TEMPLATE.replace("/*__INSTANCE_JSON__*/null",
+                            json.dumps(instance))
+                   .replace("/*__SOLUTION_JSON__*/null",
+                            json.dumps(solution))
+    open(out_path, "w", encoding="utf-8").write(html); return out_path
+
+  Fill in
+  -------
+    * Replace <...> placeholders (title, what a "step" is, how to draw it).
+    * In buildSteps(): derive the ORDERED list of frames from the solution's
+      sequential decision (e.g. a schedule/sequence/event list).
+    * In drawStep(): render one frame onto the canvas.
+
+  Recommended optional panels (guidance — proven valuable on the case study)
+  -------------------------------------------------------------------------
+  The bare canvas + player below is the minimum. Two additions repeatedly earn
+  their keep; add them as side panels (or canvas regions) when the solution
+  supports them. Both are guidance only — keep them problem-agnostic and
+  read-only over the P2/P3 data.
+
+    (a) CORRECTNESS / VERIFICATION panel. Make the artifact self-verifying, at
+        two levels:
+          - Authoritative verdict, embedded AT BUILD TIME: run the P3 checker
+            over (instance, solution) inside render_dynamic() and inline its
+            result. Show a banner — feasible if the checker returns no
+            violations, else list the flagged requirement IDs (and a few
+            messages). This is the ground-truth verdict; the viewer does not
+            recompute it.
+          - Live per-step INVARIANTS: recompute a handful of cheap feasibility
+            conditions in JS for the current frame (e.g. resource/capacity
+            bounds, "no more active items than allowed", "each action targets a
+            valid/eligible item", "an item that leaves is fully served") and
+            show a pass/fail dot per invariant. These are a redundant, at-a-
+            glance cross-check of the authoritative verdict, scoped to the step.
+        Keep the two consistent: the invariants should never disagree with the
+        embedded checker on a feasible solution.
+
+    (b) QUANTITATIVE per-step readouts. Beyond drawing the structure, surface
+        the NUMBERS the objective and constraints care about, updated per frame:
+          - what the current step consumes vs its capacity (a bar: used/limit);
+          - per-affected-item progress toward completion (delivered/needed,
+            per-component bars);
+          - a running/cumulative tally of the objective-driving quantity
+            (e.g. cumulative step count, volume, cost so far);
+          - any "active vs limit" gauge (e.g. active items vs the resource cap).
+        Precomputing a PAYLOAD in Python (derive all per-step figures once, then
+        inline that single object) keeps the JS simple and deterministic; this
+        is an alternative to inlining raw instance+solution and re-deriving in
+        JS — either is fine, but a precomputed payload scales better when the
+        readouts are heavy.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title><PROBLEM> solution — animation</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1rem; color: #222; }
+    #controls { margin: 0.5rem 0; display: flex; gap: 0.5rem; align-items: center; }
+    #stage { border: 1px solid #ccc; }
+    button { padding: 0.3rem 0.7rem; }
+    #meta { font-size: 0.9rem; color: #555; }
+  </style>
+</head>
+<body>
+  <h1><PROBLEM> solution</h1>
+  <div id="meta"></div>
+
+  <div id="controls">
+    <button id="play">Play</button>
+    <button id="step-back">&laquo;</button>
+    <button id="step-fwd">&raquo;</button>
+    <input id="slider" type="range" min="0" value="0" step="1" />
+    <span id="label"></span>
+  </div>
+
+  <canvas id="stage" width="900" height="480"></canvas>
+
+  <script>
+  // ---- Inlined data (render_dynamic substitutes these two literals) --------
+  const INSTANCE = /*__INSTANCE_JSON__*/null;
+  const SOLUTION = /*__SOLUTION_JSON__*/null;
+
+  // ---- 1. Build the ordered list of frames from the solution --------------
+  // Guidance: turn the solution's SEQUENTIAL decision into an array of frames,
+  // one per step/time-point to play back. Each frame is whatever drawStep()
+  // needs (the active items, cumulative state, etc.). Keep it deterministic.
+  function buildSteps(instance, solution) {
+    const steps = [];
+    // for (const s of solution["<sequential_decision>"]) {
+    //   steps.push({ index: /* step id */, state: /* what to draw */ });
+    // }
+    return steps;
+  }
+
+  // ---- 2. Draw a single frame ---------------------------------------------
+  function drawStep(ctx, step, instance) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    // Guidance: draw this frame's structure with plain canvas calls
+    // (fillRect / strokeRect / fillText / lines). Keep a stable layout across
+    // frames so motion is readable. Example scaffold:
+    // ctx.fillStyle = "#4472c4";
+    // ctx.fillRect(x, y, w, h);
+    // ctx.fillStyle = "#000";
+    // ctx.fillText("<label>", x, y);
+  }
+
+  // ---- 3. Player (generic; usually no need to edit) -----------------------
+  const steps = buildSteps(INSTANCE, SOLUTION);
+  const ctx = document.getElementById("stage").getContext("2d");
+  const slider = document.getElementById("slider");
+  const label = document.getElementById("label");
+  const playBtn = document.getElementById("play");
+  let cur = 0, timer = null;
+
+  document.getElementById("meta").textContent =
+    "objective = " + (SOLUTION && SOLUTION.objective) +
+    " · steps = " + steps.length;
+  slider.max = Math.max(0, steps.length - 1);
+
+  function show(i) {
+    cur = Math.max(0, Math.min(i, steps.length - 1));
+    slider.value = cur;
+    label.textContent = "step " + (cur + 1) + " / " + steps.length;
+    if (steps.length) drawStep(ctx, steps[cur], INSTANCE);
+  }
+  function play() {
+    if (timer) { clearInterval(timer); timer = null; playBtn.textContent = "Play"; return; }
+    playBtn.textContent = "Pause";
+    timer = setInterval(() => {
+      if (cur >= steps.length - 1) { clearInterval(timer); timer = null; playBtn.textContent = "Play"; return; }
+      show(cur + 1);
+    }, 600 /* ms per frame — tune */);
+  }
+
+  playBtn.onclick = play;
+  document.getElementById("step-fwd").onclick = () => show(cur + 1);
+  document.getElementById("step-back").onclick = () => show(cur - 1);
+  slider.oninput = (e) => show(parseInt(e.target.value, 10));
+  show(0);
+  </script>
+</body>
+</html>

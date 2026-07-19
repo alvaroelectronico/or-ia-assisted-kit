@@ -1,0 +1,102 @@
+% =====================================================================
+% TEMPLATE — Problem description (methodology asset A-P1-tpl)
+% =====================================================================
+% Purpose: formalize a problem so any technique (heuristic, MILP, ...) can be
+% built on top of it. Fill every <PLACEHOLDER>; delete guidance comments.
+%
+% Structure (do not change the skeleton):
+%   Part 1 — Problem presentation (narrative: context, physical/logical setup,
+%            how the cost/metric arises, key assumptions, operating regime).
+%   Part 2 — Problem statement (explicit: Decision, Requirements, Objective,
+%            Input information).
+%
+% Meant to be \input from a main.tex and compiled with a compile.py; see the
+% working example harness in docs/<problem>/ (main.tex + compile.py).
+% =====================================================================
+
+% =====================================================================
+\part{Problem presentation}
+% =====================================================================
+
+\section{Overview}
+% 2–4 sentences: what system/process, what we optimize, and the single
+% headline metric. State the central objective explicitly.
+<OVERVIEW: what the system does, what is optimized, and the headline metric>
+
+\section{Setup}
+% The physical or logical building blocks and how items/entities flow through
+% them. Use a numbered list of components, each with a short bullet list of its
+% defining properties and assumptions.
+\begin{enumerate}
+  \item \textbf{<COMPONENT 1>.}
+    \begin{itemize}
+      \item <property / assumption>
+    \end{itemize}
+  \item \textbf{<COMPONENT 2>.} <...>
+\end{enumerate}
+
+\section{How the cost/metric arises}
+% Explain, mechanically, what drives the objective metric up or down — the lever
+% the solution will pull. This is the intuition the technique must exploit.
+\begin{itemize}
+  \item <when is a unit of cost incurred?>
+  \item <what consolidates / avoids cost?>
+\end{itemize}
+
+\subsection{Key assumptions}
+% Every simplifying assumption that changes the model. Be explicit: what is NOT
+% tracked, what is assumed infinite/instant/feasible, what is out of scope.
+\begin{itemize}
+  \item <assumption 1>
+\end{itemize}
+
+% OPTIONAL — include only if the problem has distinct operating regimes /
+% variants (e.g. a simplified baseline vs the target extension). Contrast them.
+\section{Operating regime / variant}
+\begin{itemize}
+  \item \textbf{<Baseline / simplified>.} <description>
+  \item \textbf{<Target / extension>.} <description and why it is harder/realistic>
+\end{itemize}
+
+% =====================================================================
+\part{Problem statement}
+% =====================================================================
+
+\section{Decision}
+% What the solver decides. One enumerated item per decision. If decisions are
+% coupled, say so explicitly after the list.
+\begin{enumerate}
+  \item \textbf{<Decision 1>} --- <what is chosen>.
+  \item \textbf{<Decision 2>} --- <what is chosen>.
+\end{enumerate}
+
+\section{Requirements}
+% Hard constraints any feasible solution must satisfy. Group related constraints.
+% Also state explicitly anything that is NOT a requirement (to bound the model).
+%
+% STABLE-ID CONVENTION (keep it): tag each requirement with a durable ID
+% [RQ01], [RQ02], ... assigned SEQUENTIALLY as requirements are added. An ID is
+% NEVER reused and NEVER renumbered: if a requirement is dropped, retire its ID
+% (leave a gap) rather than reassigning it; new requirements always take the
+% next unused number. These IDs are referenced downstream — the solution checker
+% cites them to report which requirement a solution violates, and MILP
+% constraints may cite them (e.g. a \label comment) for traceability.
+\begin{itemize}
+  \item \textbf{[RQ01]} <requirement>
+  \item \textbf{[RQ02]} <requirement>
+\end{itemize}
+
+\section{Objective}
+% One sentence: minimize/maximize <quantity> subject to the requirements.
+\textbf{<Minimize/Maximize> <the metric>} subject to the requirements above.
+
+\section{Input information}
+% What defines an instance. One bullet per input entity with its fields.
+\begin{itemize}
+  \item \textbf{<Input 1>.} <fields / meaning>
+  \item \textbf{<Input 2>.} <fields / meaning>
+\end{itemize}
+
+% OPTIONAL — how instances will be varied to produce scenarios / KPIs.
+\medskip
+\noindent\textbf{Scenario evaluation.} <which parameters are swept and why>

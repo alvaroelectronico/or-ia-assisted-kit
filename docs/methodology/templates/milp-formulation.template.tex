@@ -1,0 +1,154 @@
+% =====================================================================
+% TEMPLATE — MILP formulation (methodology asset A-P5-tpl)
+% =====================================================================
+% Purpose: present a MILP model (notation + model) in a consistent, readable
+% style. Adapted from the "fleets" reference formulation, with ONE change:
+% constraint blocks may be INTERLEAVED with their explanations, instead of
+% listing every constraint first and all explanations at the end.
+%
+% Fill every <PLACEHOLDER>; delete guidance comments. Meant to be \input from a
+% main.tex whose preamble provides:
+%     \usepackage{amsmath,amssymb}
+%     \usepackage{longtable}
+%     \allowdisplaybreaks
+%     \newcommand{\Sum}{\sum\limits_}   % optional shorthand
+% (see the working harness in docs/<problem>/ — add \usepackage{longtable}
+% there when this template is used).
+%
+% Conventions (keep them):
+%   * NAMING (hard rule, for legibility — so a reader tells data from decisions
+%     at a glance): PARAMETERS are ALWAYS UPPERCASE (multi-letter allowed, e.g.
+%     $DUR^{MAX}_{dt}$, $V^{BOX}$); DECISION VARIABLES are ALWAYS lowercase
+%     ($x_{bs}$, $y_b$). Sets are calligraphic ($\mathcal{X}$). Indices are
+%     lowercase. When two parameters would collide on one letter, disambiguate
+%     with sub/superscripts, never by lowercasing a parameter.
+%   * Every constraint carries \label{eq:<name>} and its index range on the
+%     right, separated with \hspace{10mm}.
+%   * Big-M disjunctions read  ... - M (1 - <binary>).
+%   * Objective and domain blocks stay as single blocks; the substantive
+%     constraints are grouped and each group is explained right after it.
+% =====================================================================
+
+\part{MILP formulation}
+
+% --- OPTIONAL scaffolding section -------------------------------------
+% Include this section only if the model needs a prose preamble: the modeling
+% scope, the discretization/abstraction chosen, and the key structural
+% assumptions (each tagged, e.g. (A1), (A2)). Delete it for a bare notation +
+% model write-up. When present it goes BEFORE \section{Notation}.
+\section{Modeling scope and assumptions}
+% 1–2 short paragraphs: what the model couples/decides and how the operation is
+% discretized (e.g. into an ordered sequence, a set of positions/windows, ...);
+% then a \begin{description} of the substantive assumptions.
+<SCOPE: what the model couples/decides, and the chosen discretization/abstraction>
+\begin{description}
+  \item[\textbf{(A1) <assumption name>.}] <what it assumes and why it is safe>
+  \item[\textbf{(A2) <assumption name>.}] <...>
+\end{description}
+
+% ---------------------------------------------------------------------
+\section{Notation}\label{sec:<slug>-notation}
+% ---------------------------------------------------------------------
+
+\noindent \textit{Sets}
+
+\begin{tabular}{p{22mm}lp{105mm}}
+    $\mathcal{<SET1>}$                              & : & <description of the set> \\
+    $\mathcal{<SET2>} \subset \mathcal{<SET1>}$     & : & <description; e.g. a subset indexed by an element> \\
+    $\mathcal{<SET3>}_{<i>} \subset \mathcal{<SET2>}$ & : & <description of a parametrized family of sets> \\
+\end{tabular}
+
+\bigskip
+\noindent \textit{Parameters}
+
+\begin{longtable}{p{16mm}lp{108mm}}
+    $<PARAM1>_{<i>}$        & : & <description, with units if any> \\
+    $<PARAM2>_{<i><j>}$     & : & <description> \\
+    $M$                     & : & Large enough constant for disjunctive (big-M) constraints. \\
+\end{longtable}
+
+\bigskip
+\noindent \textit{Binary variables}
+
+\begin{tabular}{p{10mm}lp{120mm}}
+    $<x>_{<i>}$ & = & $\left\{ \begin{array}{ll}
+                        1 & \mbox{if <condition holds for index $<i>$>} \\
+                        0 & \mbox{otherwise}
+                      \end{array} \right.$ \\[2mm]
+    $<x2>_{<i><j>}$ & = & $\left\{ \begin{array}{ll}
+                        1 & \mbox{if <condition>} \\
+                        0 & \mbox{otherwise}
+                      \end{array} \right.$ \\
+\end{tabular}
+
+\bigskip
+\noindent \textit{Continuous / integer variables}
+
+\begin{tabular}{p{14mm}lp{108mm}}
+    $<y>_{<i>}$ & = & <meaning of the variable> \\
+\end{tabular}
+
+% ---------------------------------------------------------------------
+\section{Model}\label{sec:<slug>-model}
+% ---------------------------------------------------------------------
+
+% --- Objective (single block) ----------------------------------------
+\begin{align}
+  \min \quad & <objective expression> \label{eq:<slug>-obj}
+\end{align}
+The objective~\eqref{eq:<slug>-obj} <one sentence: what it minimizes/maximizes
+and what each term represents>.
+
+\medskip
+\noindent subject to:
+
+% --- Constraint group 1: <name> --------------------------------------
+\begin{align}
+  & <lhs> = <rhs>
+    \hspace{10mm} \forall\, <i> \in \mathcal{<SET1>}
+    \label{eq:<slug>-<name1>}
+\end{align}
+Constraints~\eqref{eq:<slug>-<name1>} <what this group enforces and why>.
+
+% --- Constraint group 2: <name> (big-M / multi-line example) ---------
+\begin{align}
+  & <lhs> \ge <rhs> - M\,\bigl(1 - <binary>\bigr) \notag \\
+  & \hspace{10mm} \forall\, <i> \in \mathcal{<SET1>},\ <j> \in \mathcal{<SET2>}_{<i>}
+    \label{eq:<slug>-<name2>}
+\end{align}
+Constraints~\eqref{eq:<slug>-<name2>} <explanation>. The big-M term deactivates
+the bound unless $<binary> = 1$.
+
+% --- Constraint group 3: <name> (range/counting example) -------------
+\begin{align}
+  & \sum_{<j> \in \mathcal{<SET2>}_{<i>}} <x2>_{<i><j>} \le <PARAM1>_{<i>}
+    \hspace{10mm} \forall\, <i> \in \mathcal{<SET1>}
+    \label{eq:<slug>-<name3>}
+\end{align}
+Constraints~\eqref{eq:<slug>-<name3>} <explanation>.
+
+% --- Add further interleaved constraint groups here ------------------
+% Pattern per group: a short \begin{align}...\end{align} with \label(s),
+% immediately followed by a paragraph "Constraints~\eqref{...} ...".
+
+% --- Variable domains (single block) ---------------------------------
+\begin{align}
+  & <x>_{<i>}     \in \{0,1\}            \hspace{10mm} \forall\, <i> \in \mathcal{<SET1>} \label{eq:<slug>-dom-x} \\
+  & <x2>_{<i><j>} \in \{0,1\}            \hspace{10mm} \forall\, <i>,\, <j> \label{eq:<slug>-dom-x2} \\
+  & <y>_{<i>}     \ge 0                  \hspace{10mm} \forall\, <i> \in \mathcal{<SET1>} \label{eq:<slug>-dom-y}
+\end{align}
+Constraints~\eqref{eq:<slug>-dom-x}--\eqref{eq:<slug>-dom-y} are the variable
+domains.
+
+% --- OPTIONAL scaffolding section -------------------------------------
+% Include this section only if there are modeling caveats worth recording:
+% linearity notes, big-M / horizon tightness, symmetry-breaking, or choices
+% deferred to later phases. Delete it for a bare model. When present it goes
+% AFTER the variable-domain block.
+% ---------------------------------------------------------------------
+\section{Notes and open modeling choices}\label{sec:<slug>-notes}
+% ---------------------------------------------------------------------
+\begin{itemize}
+  \item \textbf{<note title>.} <e.g. why the model is fully linear / what sizes it well / big-M or horizon tightness>
+  \item \textbf{<open choice>.} <a modeling choice deferred or left to tuning, and to which phase>
+\end{itemize}

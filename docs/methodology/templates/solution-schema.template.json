@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "<PROBLEM NAME> solution",
+  "description": "TEMPLATE (methodology asset A-P3-tpl-sol-schema). Structure of a candidate SOLUTION for <PROBLEM>: the realized decisions only. This is the object a technique (MILP or heuristic) emits and the checker consumes. Do NOT restate the instance (input data) here; keep the two schemas disjoint. Fill every <PLACEHOLDER>, keep the skeleton, and delete this sentence. Each top-level decision block SHOULD map back to a decision symbol in the P5 MILP formulation / P1 Decision section. Use `additionalProperties: false` everywhere to catch typos; list only genuinely-required blocks in `required`.",
+  "type": "object",
+  "required": ["<primary_decision>", "objective"],
+  "additionalProperties": false,
+  "properties": {
+    "<primary_decision>": {
+      "type": "array",
+      "description": "The main decision set (e.g. an assignment / selection / sequencing). One entry per realized decision. Rename to your decision symbol.",
+      "items": {
+        "type": "object",
+        "required": ["<entity_ref>", "<value>"],
+        "additionalProperties": false,
+        "properties": {
+          "<entity_ref>": { "type": "string", "description": "Id of the instance entity this decision is about (must exist in the instance)." },
+          "<value>": { "type": "integer", "description": "Realized decision value; adjust type/domain (integer/number/string/boolean) to the decision variable." }
+        }
+      }
+    },
+    "<secondary_decision>": {
+      "type": "object",
+      "description": "OPTIONAL second decision block, e.g. a map id -> chosen resource. Remove if the problem has a single decision family.",
+      "additionalProperties": { "type": "string" }
+    },
+    "objective": {
+      "type": "number",
+      "description": "Objective value the technique reports for this solution. The checker's get_objective() recomputes it from the decisions and should match (within tolerance)."
+    }
+  }
+}
