@@ -1,0 +1,176 @@
+% =====================================================================
+% TEMPLATE — Detailed algorithm description (methodology asset A-algdoc-tpl)
+% =====================================================================
+% Purpose: the TEMPLATE LAYER of the "document algorithms in detail" convention.
+% Any algorithm phase — P5 (MILP formulation), P6 (MILP implementation), P8
+% (heuristic design) — must produce a DEDICATED, detailed write-up of its
+% algorithm (not merely the one-paragraph P10 report summary) so the technique
+% can be reproduced, reviewed and handed off. This skeleton is that write-up.
+%
+% First instance: docs/<problem>/heuristic.tex (a full Iterated Greedy
+% write-up). Reuse this file for the MILP formulation/implementation docs too.
+%
+% Fill every <PLACEHOLDER>; delete guidance comments. Meant to be \input from a
+% main.tex, whose preamble provides at least:
+%     \usepackage{amsmath,amssymb}
+% (see the working harness in docs/<problem>/ — main.tex + compile.py).
+% State in the header comment WHICH phase this doc covers and WHERE it slots in
+% the \input order (e.g. after the formulation part, before the report).
+%
+% Structure (keep the skeleton stable; enrich guidance only):
+%   Overview → per-stage/component sections (each with verbatim pseudocode) →
+%   Core routine / objective evaluator → Complexity → Parameters (table) →
+%   Worked micro-example → Design rationale & limitations.
+%
+% Principles this doc must honor:
+%   * Pseudocode is verbatim and self-contained — a reader reproduces the stage
+%     from it alone, without the source code.
+%   * Name the CORE reusable routine explicitly (the objective evaluator / cost
+%     function most other stages call), and say why it is checker-valid /
+%     correct-by-construction where that applies.
+%   * State complexity per stage AND overall, in the algorithm's own size
+%     symbols (define them once).
+%   * Every tunable knob appears in the Parameters table with a DEFAULT.
+%   * The micro-example is small enough to trace by hand end to end.
+%   * Rationale explains WHY this design (tie back to the requirements / the
+%     method-review choice); limitations are honest, not decorative.
+% =====================================================================
+
+% =====================================================================
+\part{<ALGORITHM NAME> --- detailed description}
+% =====================================================================
+
+\section{Overview}
+% 4–8 sentences. Name the algorithm and, if it came from a method-review phase,
+% the candidate/source it realizes. State the objective it optimizes (the single
+% headline metric). List its stages/components as an enumerate, in execution
+% order, and point at the file(s) that implement it. End by naming the CORE
+% reusable routine (the objective evaluator / cost function) that ties the
+% pipeline together and makes this technique comparable to the others.
+<OVERVIEW: what the algorithm is, what it optimizes, and its stages in order>
+
+The algorithm has <N> stages, implemented in \texttt{<path/to/impl>}:
+\begin{enumerate}
+  \item \textbf{<STAGE 1 NAME>} --- <one line: what it decides / produces>.
+  \item \textbf{<STAGE 2 NAME>} --- <one line>.
+  \item \textbf{<STAGE 3 NAME>} --- <one line>.
+  % add/remove stages to match the algorithm
+\end{enumerate}
+
+% One sentence naming the reusable core and why it matters (e.g. every technique
+% is scored through the same checker/evaluator, so they are directly comparable).
+<CORE ROUTINE> is the reusable core: <how the other stages feed it and why it
+makes techniques comparable>.
+
+% =====================================================================
+% PER-STAGE / PER-COMPONENT SECTIONS
+% Repeat one \section per stage or component listed in the Overview. Each:
+%   * prose describing WHAT the stage does and the rules it must respect
+%     (tie hard rules back to the requirement IDs [RQxx] where relevant);
+%   * a \begin{verbatim} pseudocode block that stands on its own;
+%   * a one-line complexity note in the stage's size symbols.
+% For an MILP-formulation doc, a "stage" may instead be a constraint FAMILY or
+% modeling block; keep the same shape (prose + a precise statement + a note).
+% =====================================================================
+
+\section{Stage 1 --- <STAGE 1 NAME>}
+% Prose: the stage's job, its inputs/outputs, and every hard rule it enforces
+% (cite [RQxx] when a rule comes from a requirement). Say what is FIXED here vs
+% what remains a lever for later stages.
+<WHAT STAGE 1 DOES and the rules it respects>
+
+\begin{verbatim}
+<STAGE 1 PSEUDOCODE>
+  # self-contained: inputs, the loop/decision, what it emits.
+  # use the algorithm's own names; no source-language specifics required.
+\end{verbatim}
+
+% Complexity of this stage alone, in the size symbols you define in \S Complexity.
+This runs in $O(<...>)$ (<define the symbols used>).
+
+\section{Stage 2 --- <STAGE 2 NAME>}
+<WHAT STAGE 2 DOES>
+
+\begin{verbatim}
+<STAGE 2 PSEUDOCODE>
+\end{verbatim}
+
+% Duplicate this \section block for each remaining stage/component.
+
+\section{Core routine --- <CORE ROUTINE / OBJECTIVE EVALUATOR NAME>}
+% The dedicated section for the routine most other stages call: the objective
+% evaluator, cost function, or (for a sequential objective) the discrete-event
+% simulator. Give:
+%   * its signature and what it returns (the objective value + any schedule /
+%     decision it materializes);
+%   * its STATE (\paragraph{State.}) if it is a simulator;
+%   * its STEP logic (\paragraph{Step.}) as an enumerate, then the pseudocode;
+%   * WHY it is correct / checker-valid (\paragraph{...}) — how it satisfies the
+%     feasibility rules by construction, so its output passes the P3 checker;
+%   * whether it is EXACT or an APPROXIMATION for a fixed input (be explicit;
+%     say where optimization actually happens if this routine is greedy).
+\texttt{<signature>} is the objective. <one line: what it computes and returns>.
+
+\paragraph{State.} <the mutable state it maintains, if a simulator; else delete>.
+
+\paragraph{Step.} <the unit of work>:
+\begin{enumerate}
+  \item <selection rule (with tie-break)>.
+  \item <action / update>.
+  \item <what gets recorded, what advances>.
+\end{enumerate}
+
+\begin{verbatim}
+<CORE ROUTINE PSEUDOCODE>
+\end{verbatim}
+
+\paragraph{Why it is correct / checker-valid.} <how each emitted decision
+respects the feasibility rules [RQxx] by construction, so the output passes the
+P3 checker>.
+
+\paragraph{Exactness.} <EXACT for its input, or GREEDY/APPROXIMATE — if the
+latter, say where the real optimization happens (e.g. the outer search)>.
+
+\section{Complexity}
+% Define the size symbols ONCE here (e.g. let N = ..., M = ..., Z = objective
+% value / number of steps). Give the cost of one core-routine call, then the
+% OVERALL cost as a product across the stages / the outer search. Compare to the
+% exact method's worst case where relevant, and note the practical runtime
+% regime if measured.
+Let <SYMBOL> be <...>, <SYMBOL> be <...>. One <core routine> call costs
+$O(<...>)$. The overall cost is
+$\approx <...>$ --- <polynomial / exponential; practical runtime note>.
+
+\section{Parameters}
+% EVERY tunable knob, with a DEFAULT and its effect. Keep it a simple table.
+% If the algorithm has no free parameters, say so in one line and drop the table.
+\begin{center}
+\begin{tabular}{lll}
+\hline
+parameter & default & effect \\
+\hline
+\texttt{<param1>} & <default> & <what it controls> \\
+\texttt{<param2>} & <default> & <what it controls> \\
+\texttt{<param3>} & <default> & <what it controls> \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Worked micro-example}
+% A tiny instance traced end to end by hand: state the inputs, run each stage /
+% a few core-routine steps, and show the resulting objective. Small enough that
+% the reader can verify every number. Use a compact table or inline listing.
+<INPUTS of the tiny instance>
+
+<TRACE through the stages / steps, ending in the objective value>
+
+\section{Design rationale and limitations}
+
+\paragraph{Rationale.} <WHY this design: which quantity drives the objective,
+why the chosen lever/search-space is the right one, and (if applicable) why the
+method-review phase recommended this approach>.
+
+\paragraph{Limitations.} <honest list, e.g.>:
+(i) <where the routine is greedy/suboptimal and what would tighten it>;
+(ii) <what part of the decision space is NOT searched (future work)>;
+(iii) <acceptance/stopping-rule or scaling limits and how to relax them>.

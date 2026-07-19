@@ -60,6 +60,13 @@ logged as a decision.
 > returns only the non-empty results (empty ⇒ feasible), rather than a custom
 > runner.
 
+> **Document algorithms in detail.** The algorithm phases (P5 formulation, P6
+> implementation, P8 heuristic) each produce a **detailed** description — per-stage
+> pseudocode, the objective/evaluator, complexity, a parameter table, design
+> rationale, a worked micro-example, and limitations — as a dedicated doc (e.g.
+> `docs/<problem>/heuristic.tex`), not merely the P10 report summary. The template
+> layer of this convention is `templates/algorithm-doc.template.tex`.
+
 > **Solution-layer phases.** P4 visualization is a solution-layer phase and a
 > sibling of the P3 checker: both consume the P3 solution schema — the checker
 > *validates* a solution, the visualizer *renders* it. Because visualization is

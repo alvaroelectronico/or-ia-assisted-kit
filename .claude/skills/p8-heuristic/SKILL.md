@@ -26,6 +26,11 @@ Design a heuristic that exploits the problem's cost lever, and implement it.
    MILP implementation.
 3. Run it on sample instances; confirm feasibility with the P3 checker and record
    objective + time.
+4. **Document the algorithm in detail.** Write a dedicated `docs/<problem>/heuristic.tex`
+   (\input into the LaTeX harness) describing HOW it works — not just a summary:
+   per-stage **pseudocode**, the **objective/evaluator**, **complexity**, a
+   **parameter table** with defaults, **design rationale**, a **worked micro-example**,
+   and **limitations**. The P10 report only summarises; this is the full description.
 
 ## Optional agent
 - Spawn a design panel that proposes several heuristic strategies from different
@@ -38,7 +43,9 @@ Design a heuristic that exploits the problem's cost lever, and implement it.
 
 ## Done when
 - The heuristic returns solutions that pass the **P3 solution checker** on all
-  sample instances, with recorded objective and runtime.
+  sample instances, with recorded objective and runtime; and a **detailed
+  algorithm description** (pseudocode, complexity, parameters, rationale, worked
+  example) exists in `docs/<problem>/heuristic.tex`.
 
 ## Governance
 - Invoke `methodology-curator` to record P8 and extract the template.

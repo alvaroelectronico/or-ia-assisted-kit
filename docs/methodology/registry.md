@@ -49,6 +49,7 @@ or `skill`. Templates live in `templates/`; skills are driver skills under
 | A-P9-tpl-runner       | template | P9 | `templates/experiment-runner.template.py` | draft | Systematic experiment harness (benchmark × methods × configs; P3 compliance gate; dual persistence JSON + results.csv ledger; gap + absolute Δ; git/env/seed stamps) |
 | A-P9-tpl-protocol     | template | P9 | `templates/experiment-protocol.template.md` | draft | Battery protocol doc skeleton (benchmark, cached baseline, gap + Δ, judging order, outputs layout, reproducibility, noise floor) |
 | A-P10-tpl             | template | P10 | `templates/report.template.tex` | draft | Conclusions-report skeleton (Overview / Methods [exact + heuristic] / Experimental setup / Results table / Discussion + honest caveats / Conclusions / Methodology retrospective) |
+| A-algdoc-tpl          | template | P5/P6/P8 | `templates/algorithm-doc.template.tex` | draft | Detailed-algorithm-doc skeleton (Overview / per-stage pseudocode / core routine-evaluator / complexity / parameter table / worked micro-example / rationale + limitations) — template layer of the "document algorithms in detail" convention |
 | A-P0-skill  | skill | P0 | `.claude/skills/p0-intake/SKILL.md` | stable | Intake & scoping |
 | A-P1-skill  | skill | P1 | `.claude/skills/p1-formalize/SKILL.md` | stable | Formalization |
 | A-P2-skill  | skill | P2 | `.claude/skills/p2-data-model/SKILL.md` | stable | Data model & instances |
