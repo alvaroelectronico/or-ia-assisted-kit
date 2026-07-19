@@ -1,0 +1,160 @@
+% =====================================================================
+% TEMPLATE — Conclusions report (methodology asset A-P10-tpl)
+% =====================================================================
+% Purpose: the phase-P10 deliverable — a self-contained report that documents
+% the methods built for the problem, presents the P9 experimental comparison,
+% draws honest conclusions, and closes with a methodology retrospective.
+%
+% Fill every <PLACEHOLDER>; delete guidance comments. Meant to be \input from a
+% main.tex (typically LAST, after the formulation part), whose preamble provides
+% at least:
+%     \usepackage{amsmath,amssymb}
+% (see the working harness in docs/<problem>/ — main.tex + compile.py).
+%
+% Structure (keep the skeleton stable; enrich guidance only):
+%   Overview → Methods (exact + heuristic) → Experimental setup →
+%   Results (table) → Discussion (with honest caveats) →
+%   Conclusions & recommendations → Methodology retrospective.
+%
+% Principles this report must honor:
+%   * Report ONLY what the P9 battery actually produced — no unrun claims.
+%   * Every reported solution passed the P3 checker (compliance gate); say so.
+%   * Use ONE fixed gap convention, defined once and reused (match P9).
+%   * Be honest about the benchmark's limits (size, coverage, unclosed runs).
+% =====================================================================
+
+% =====================================================================
+\part{Report --- methods, results, conclusions}
+% =====================================================================
+
+\section{Overview}
+% 3–5 sentences: restate the problem and its single headline objective, name the
+% techniques compared (typically one EXACT method + one HEURISTIC), and state the
+% shared contract that makes the comparison fair (same solution schema, every
+% solution validated by the P3 checker before it counts). No results yet.
+<OVERVIEW: what problem is solved, the headline objective, the <N> techniques
+compared, and the shared solution-schema + checker contract>
+
+\section{Methods}
+
+\subsection{Exact --- <EXACT METHOD NAME>}
+% One paragraph. Summarize the exact model (reference the formulation part rather
+% than repeating it): the core decision variables/objects, the objective, the
+% governing constraint families, and the solver stack + the run knobs used
+% (time limit, gap tolerance). Keep it to essentials — the full model lives in
+% the formulation part.
+<EXACT-METHOD SUMMARY: model in brief, objective, key constraints, solver stack,
+run knobs (time limit / gap)>
+
+\subsection{Heuristic --- <HEURISTIC METHOD NAME>}
+% Name the approach and, if applicable, cite the phase-P7 candidate it realizes.
+% Describe its components as a short numbered list. A common shape:
+\begin{enumerate}
+  \item \textbf{<CONSTRUCTIVE STEP>} --- <the requirement-respecting greedy that
+        builds feasible building blocks; note which hard requirements it enforces
+        BY CONSTRUCTION, referencing their [RQxx] ids>.
+  \item \textbf{<OBJECTIVE EVALUATOR>} --- <the deterministic evaluator that turns
+        a candidate into a FULL, checker-valid solution and scores it; note this
+        is the reusable core the experiment harness measures>.
+  \item \textbf{<SEARCH / METAHEURISTIC>} --- <the improvement loop: the degree of
+        freedom perturbed, the accept rule, restarts>.
+\end{enumerate}
+
+% One closing sentence: both techniques return solutions in the same P3 schema,
+% so the checker and the experiment harness treat them identically.
+<CLOSING: both methods emit the same solution schema, judged identically>
+
+\section{Experimental setup}
+% Describe the benchmark, harness, compliance gate, gap convention and
+% reproducibility — enough for a reader to trust and reproduce the numbers.
+
+% Benchmark: a deterministic grid of instances from the P2 generator (seed-first),
+% sized so the exact method mostly provides a trustworthy baseline. Present the
+% grid as a compact table of the size dimensions that matter for this problem.
+The benchmark is a deterministic grid of <N> instances from the P2 generator
+(seed-first), sized so the exact method mostly <closes / proves optimality>
+(the reference baseline):
+
+\begin{center}
+\begin{tabular}{l<COLUMN SPEC: one r per size dimension>}
+\hline
+instance & <SIZE DIM 1> & <SIZE DIM 2> & <...> \\
+\hline
+<INSTANCE FAMILY 1> & <val> & <val> & <...> \\
+<INSTANCE FAMILY 2> & <val> & <val> & <...> \\
+% ... one row per instance family (group seeds compactly, e.g. seed\{1,2,3\})
+\hline
+\end{tabular}
+\end{center}
+
+% Harness + gates + reproducibility. State: dual logging (rich per-run JSON +
+% append-only CSV ledger), the compliance gate (every solution through the P3
+% checker; non-compliant never counts), reproducibility stamps (seed, config,
+% git commit, host, solver/library versions), and the ONE gap convention (define
+% it explicitly, with the objective direction that makes a positive value mean
+% "method beats the baseline").
+Every run is dual-logged (rich per-run JSON + an append-only CSV ledger) with
+reproducibility stamps (seed, config, git commit, host, solver versions). Each
+solution passes the P3 checker (compliance gate). The comparison uses the fixed
+gap $=(\text{baseline}_{\text{obj}}-\text{method}_{\text{obj}})/\text{baseline}_{\text{obj}}$
+% ^ flip the numerator sign if the objective is MAXIMIZED; state what a positive
+%   value means for THIS objective direction.
+(<what a positive value means for this objective's direction>).
+
+\section{Results}
+% One row per instance. Columns: the baseline (exact) objective, its status
+% (optimal / hit-time-limit / ...) and wall time, then each method's objective and
+% wall time. Keep numbers exactly as logged in the CSV ledger.
+
+\begin{center}
+\begin{tabular}{l<COLUMN SPEC>}
+\hline
+instance & <BASELINE> obj & <BASELINE> status & <BASELINE>\,s & <METHOD> obj & <METHOD>\,s \\
+\hline
+<INSTANCE> & <obj> & <status> & <time> & <obj> & <time> \\
+% ... one row per instance
+\hline
+\end{tabular}
+\end{center}
+
+% Narrative under the table: the headline finding stated plainly. Report the gap
+% across the benchmark, how many instances the exact method closed, and any
+% instance where it stalled and how the heuristic compared there (objective +
+% speed factor). Reaffirm that every reported solution is checker-valid and give
+% the heuristic's runtime envelope.
+<RESULTS NARRATIVE: headline gap across the benchmark; exact-method closed count;
+behavior on any unclosed instance (objective tie/beat + speed factor); all
+solutions checker-valid; runtime envelope>
+
+\section{Discussion}
+% Interpret the results, then state the HONEST CAVEATS explicitly — this section
+% earns the report its credibility. Typical caveats to consider (keep those that
+% apply, add problem-specific ones):
+%   (i)  benchmark size/coverage — is this a correctness validation or a scaling
+%        study? say which it is NOT yet.
+%   (ii) did the exact method actually get stressed? if few/no instances forced a
+%        strictly positive gap, say the margin was not demonstrated (not that the
+%        method cannot win).
+%  (iii) any determinism/variance limits (single seed per method, RNG, etc.).
+<DISCUSSION: interpretation of the comparison, followed by the honest caveats
+that bound what these results do and do not establish>
+
+\section{Conclusions and recommendations}
+% 2–4 sentences. State which method(s) to use and why, grounded strictly in the
+% evidence above. Then give the concrete recommended NEXT step(s) (e.g. a scaling
+% study on larger instances where the exact method no longer baselines,
+% parameter sweeps, multi-seed variance).
+<CONCLUSIONS: recommended method(s) and why, plus the concrete next step(s)>
+
+\section{Methodology retrospective}
+% Step out of the domain and reflect on the METHOD itself (this is the P10
+% synthesis half). Two short lists:
+%   * What worked: which phases / reusable assets paid off (e.g. the phase
+%     pipeline, the P3 checker reused as a compliance gate across phases, the
+%     systematic experiment harness, the P7 method review that surfaced the
+%     chosen heuristic).
+%   * To improve: concrete, actionable gaps observed while running the case
+%     (benchmark growth, storing instances as files, template generalizations a
+%     second problem would need, etc.). Feed these back as decision-log candidates.
+<RETROSPECTIVE — What worked: <phases/assets that paid off>.
+To improve: <concrete methodological gaps observed and how to address them>>

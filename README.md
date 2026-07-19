@@ -26,7 +26,7 @@ methodology-kit/
     methodology/
       README.md                 ← the PLAYBOOK (phases, two-layer principle, governance)
       registry.md               ← living log — ships BLANK (fill it for your problem)
-      templates/                ← the reusable layer (13 templates)
+      templates/                ← the reusable layer (15 templates)
 ```
 
 - **Skills** (`.claude/skills/`) — the reproducible recipe for each phase. Each one

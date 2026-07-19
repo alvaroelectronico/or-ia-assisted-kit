@@ -45,8 +45,10 @@ or `skill`. Templates live in `templates/`; skills are driver skills under
 | A-P4-tpl-viz-dynamic  | template | P4 | `templates/visualize-dynamic.template.html` | draft | self-contained HTML/JS dynamic backend skeleton |
 | A-P5-tpl              | template | P5 | `templates/milp-formulation.template.tex` | draft | MILP formulation (fleets style; params UPPERCASE, vars lowercase; interleaved) |
 | A-P6-tpl              | template | P6 | `templates/milp-implementation.template.py` | draft | Pyomo implementation scaffold; extracts to P3 solution schema + runs P3 checker |
+| A-P8-tpl              | template | P8 | `templates/heuristic-design.template.py` | draft | Heuristic-design scaffold: constructive builder + deterministic P3-schema evaluator (reusable core) + iterated-greedy/local-search loop with multi-restart |
 | A-P9-tpl-runner       | template | P9 | `templates/experiment-runner.template.py` | draft | Systematic experiment harness (benchmark × methods × configs; P3 compliance gate; dual persistence JSON + results.csv ledger; gap + absolute Δ; git/env/seed stamps) |
 | A-P9-tpl-protocol     | template | P9 | `templates/experiment-protocol.template.md` | draft | Battery protocol doc skeleton (benchmark, cached baseline, gap + Δ, judging order, outputs layout, reproducibility, noise floor) |
+| A-P10-tpl             | template | P10 | `templates/report.template.tex` | draft | Conclusions-report skeleton (Overview / Methods [exact + heuristic] / Experimental setup / Results table / Discussion + honest caveats / Conclusions / Methodology retrospective) |
 | A-P0-skill  | skill | P0 | `.claude/skills/p0-intake/SKILL.md` | stable | Intake & scoping |
 | A-P1-skill  | skill | P1 | `.claude/skills/p1-formalize/SKILL.md` | stable | Formalization |
 | A-P2-skill  | skill | P2 | `.claude/skills/p2-data-model/SKILL.md` | stable | Data model & instances |
@@ -60,8 +62,8 @@ or `skill`. Templates live in `templates/`; skills are driver skills under
 | A-P9-skill  | skill | P9 | `.claude/skills/p9-experiments/SKILL.md` | stable | Experimentation & comparison |
 | A-P10-skill | skill | P10 | `.claude/skills/p10-report/SKILL.md` | stable | Reporting & synthesis |
 
-> Phases P8 and P10 ship with a skill but no template yet: their templates are
-> extracted on first execution (the skill's "reusable asset" step).
+> Phase P0 (Intake & scoping) has no template (it is a lightweight checklist).
+> All other phases P1–P10 ship at least one template.
 
 ---
 
