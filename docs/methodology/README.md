@@ -140,10 +140,24 @@ by **two skills + two agents**:
 
 **Folder convention.** P11 outputs live under `docs/<problem>/paper/`:
 
-- `sources/` — user-provided source material for the review.
+- `candidate_references.md` — the themed **to-fetch list** from `paper-litreview`:
+  each candidate carries a URL (DOI preferred) + an access flag
+  (`open-access` / `paywalled` / `local — digested` / `unknown`), plus a
+  "still pending fetch" table of paywalled PDFs to drop.
+- `sources/` — drop folder for user-supplied source PDFs (especially the
+  **paywalled** ones listed in `candidate_references.md`).
 - `style/` — target-journal example papers / author guides (style reference).
 - `related_work.tex` + `references.bib` — from `paper-litreview`.
 - `paper.tex` — the manuscript draft from `paper-write`.
+
+**How to run the review (locate-URLs → drop PDFs → re-run loop).** The standard
+way to run `paper-litreview` is iterative: (1) it first emits
+`candidate_references.md` locating each lead by URL + access flag; (2) the user
+fetches the `paywalled` PDFs and drops them (as `authorYEAR.pdf`) into `sources/`
+(and any target-journal examples into `style/`); (3) re-run `paper-litreview` to
+fold the newly available full texts into `references.bib` / `related_work.tex`.
+Candidates are **leads to verify, never fabricated citations** — unverifiable
+DOIs stay flagged `% TODO verify`.
 
 The reusable asset is the journal-agnostic skeleton
 [`templates/paper.template.tex`](templates/paper.template.tex) (title/authors,

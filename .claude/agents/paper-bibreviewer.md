@@ -27,21 +27,34 @@ analysis (that was phase P7).
   missing.
 
 # What you produce
-1. `docs/<problem>/paper/related_work.tex` — a related-work draft: 3–6 thematic
+1. `docs/<problem>/paper/candidate_references.md` — a curated list of candidate
+   references grouped by theme, each with a **URL** (DOI / publisher / arXiv /
+   Google-Scholar search) and an **access flag** (open-access vs paywalled). This
+   is the "to-fetch" list: the user drops any paywalled PDFs into
+   `docs/<problem>/paper/sources/` so a re-run can cite them. A candidate is a
+   lead to verify, never a citation.
+2. `docs/<problem>/paper/related_work.tex` — a related-work draft: 3–6 thematic
    groups (e.g. the problem family, exact methods, the heuristic families used),
    each 1–2 paragraphs with `\cite{...}` keys, ending with an explicit **gap /
    positioning** paragraph ("unlike X, we …").
-2. `docs/<problem>/paper/references.bib` — BibTeX entries for every key cited.
+3. `docs/<problem>/paper/references.bib` — BibTeX entries for every cited key
+   (from the P7 digests, PDFs in `sources/`, and verifiable candidates); mark any
+   entry not yet fetched/verified `% TODO fetch`.
 
 # Workflow
 1. Read the case artifacts to state the contribution in one sentence (what is new).
 2. Gather candidate references: reuse the P7 digests (they already name techniques
-   and, often, their source papers), add user-provided sources, and — if search is
-   available — find canonical references for each theme.
-3. Cluster by theme; for each, write the positioning paragraph with citations.
+   and, often, their source papers), read any PDFs already in
+   `docs/<problem>/paper/sources/`, and — if a search tool is available — locate
+   canonical references per theme. Write `candidate_references.md` with a URL +
+   access flag per entry; anything paywalled/unfetched is flagged so the user can
+   drop the PDF into `sources/` and re-run.
+3. Cluster by theme; for each, write the positioning paragraph, citing only keys
+   backed by a real entry (digest, `sources/` PDF, or verified candidate).
 4. Write the gap paragraph: what the literature does NOT cover that this paper does.
-5. Emit `related_work.tex` + `references.bib`; return a short summary: themes, key
-   references, and the one-sentence gap.
+5. Emit `candidate_references.md` + `related_work.tex` + `references.bib`; return a
+   short summary: themes, key references, the one-sentence gap, and **which
+   candidates are still pending fetch** (so the user knows what to drop in `sources/`).
 
 # Discipline
 - **Never invent citations.** Every `\cite` key must have a real, verifiable entry
