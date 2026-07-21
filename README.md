@@ -19,14 +19,16 @@ methodology-kit/
   README.md                     ← you are here (what it is + how to reuse)
   .claude/
     skills/                     ← phase driver skills (p0-intake … p10-report)
-                                  + 2 method-review skills for P7 (digest-paper, synthesize-theory)
-    agents/                     ← 2 governance agents (curator + auditor)
-                                  + 2 method-review agents (theory-paper-digest, theory-synthesize)
+                                  + P7 method-review skills (digest-paper, synthesize-theory)
+                                  + P11 paper skills (paper-litreview, paper-write)
+    agents/                     ← governance agents (curator + auditor)
+                                  + P7 method-review agents (theory-paper-digest, theory-synthesize)
+                                  + P11 paper agents (paper-bibreviewer, paper-writer)
   docs/
     methodology/
       README.md                 ← the PLAYBOOK (phases, two-layer principle, governance)
       registry.md               ← living log — ships BLANK (fill it for your problem)
-      templates/                ← the reusable layer (16 templates)
+      templates/                ← the reusable layer (17 templates)
 ```
 
 - **Skills** (`.claude/skills/`) — the reproducible recipe for each phase. Each one
@@ -35,7 +37,8 @@ methodology-kit/
   progress + extracts templates) and `methodology-auditor` (read-only consistency
   checks); plus the **method-review** pair `theory-paper-digest` (digest one source)
   and `theory-synthesize` (turn digests into candidate approaches) — see §"Method
-  review" below.
+  review" below; plus the **optional paper** pair `paper-bibreviewer` (related-work +
+  bibliography) and `paper-writer` (journal-style manuscript) for phase P11.
 - **Playbook** (`docs/methodology/README.md`) — the authoritative description of the
   method: the phases, the two-layer (instance + template) principle, and how the
   governance loop works.
@@ -62,6 +65,7 @@ methodology-kit/
 | P8 | Heuristic design | Constructive + local-search heuristic (from a P7 candidate) | `p8-heuristic` |
 | P9 | Experimentation & comparison | KPIs, exact-vs-heuristic gap | `p9-experiments` |
 | P10 | Reporting & synthesis | Conclusions + methodology retrospective | `p10-report` |
+| P11 | Scientific paper *(optional)* | Related-work review + bibliography + a journal-style manuscript | `paper-litreview` + `paper-write` |
 
 Phases are not strictly linear — later phases can feed corrections back to earlier
 ones; every such loop is logged in the registry.
@@ -84,6 +88,23 @@ realized by **two skills + two agents**:
 Curate a **relevant subset** of sources (don't digest everything), and log what you
 skipped. Outputs live under `docs/<problem>/theory/` (`inspiration/`, `digests/`,
 `synthesis.md`).
+
+## Phase P11 — Scientific paper (optional)
+
+An **optional** final stage: turn the finished case study (the P0–P10 artifacts)
+into a submittable scientific-journal manuscript. Like P7, two skills + two agents:
+
+- `/paper-litreview [focus]` → the `paper-bibreviewer` agent builds the paper's
+  **related-work positioning** + a **BibTeX bibliography** (reusing the P7 digests,
+  user sources, and — if available — a literature search).
+- `/paper-write [target-journal-or-style]` → the `paper-writer` agent drafts
+  `docs/<problem>/paper/paper.tex` in journal style, **adapting to a target
+  journal's** structure/tone/citation conventions, from the P0–P10 artifacts +
+  the related-work + bibliography.
+
+Backed by `templates/paper.template.tex`. Outputs live under `docs/<problem>/paper/`
+(`sources/`, `style/`, `related_work.tex`, `references.bib`, `paper.tex`). It does
+**not** gate methodology completion.
 
 ---
 

@@ -22,9 +22,10 @@ or `skill`. Templates live in `templates/`; skills are driver skills under
 **Accounting notes.**
 - **Asset IDs are stable handles** — never renumbered once assigned; the **Phase**
   column tracks the current phase number.
-- **Governance agents** (`methodology-curator`, `methodology-auditor`) and the
-  **phase-P7 method-review agents** (`theory-paper-digest`, `theory-synthesize`)
-  live in `.claude/agents/` — tracked here as a note, not as asset rows.
+- **Governance agents** (`methodology-curator`, `methodology-auditor`), the
+  **phase-P7 method-review agents** (`theory-paper-digest`, `theory-synthesize`),
+  and the **phase-P11 paper agents** (`paper-bibreviewer`, `paper-writer`) live in
+  `.claude/agents/` — tracked here as a note, not as asset rows.
 - **Phase P7 (Method review & transfer)** has no single `p7-*` driver skill; it is
   realized by the two skills `digest-paper` + `synthesize-theory`.
 - Package markers (`__init__.py`), the LaTeX **build harness** (`main.tex` +
@@ -50,6 +51,7 @@ or `skill`. Templates live in `templates/`; skills are driver skills under
 | A-P9-tpl-protocol     | template | P9 | `templates/experiment-protocol.template.md` | draft | Battery protocol doc skeleton (benchmark, cached baseline, gap + Δ, judging order, outputs layout, reproducibility, noise floor) |
 | A-P10-tpl             | template | P10 | `templates/report.template.tex` | draft | Conclusions-report skeleton (Overview / Methods [exact + heuristic] / Experimental setup / Results table / Discussion + honest caveats / Conclusions / Methodology retrospective) |
 | A-algdoc-tpl          | template | P5/P6/P8 | `templates/algorithm-doc.template.tex` | draft | Detailed-algorithm-doc skeleton (Overview / per-stage pseudocode / core routine-evaluator / complexity / parameter table / worked micro-example / rationale + limitations) — template layer of the "document algorithms in detail" convention |
+| A-P11-tpl             | template | P11 | `templates/paper.template.tex` | draft | Journal-agnostic scientific-paper skeleton (title/abstract/keywords / intro + contribution bullets / related work / problem statement / methods [exact+heuristic] / experiments + results / discussion / conclusions / references); guidance to adapt document class + citation style per target journal |
 | A-P0-skill  | skill | P0 | `.claude/skills/p0-intake/SKILL.md` | stable | Intake & scoping |
 | A-P1-skill  | skill | P1 | `.claude/skills/p1-formalize/SKILL.md` | stable | Formalization |
 | A-P2-skill  | skill | P2 | `.claude/skills/p2-data-model/SKILL.md` | stable | Data model & instances |
@@ -62,6 +64,8 @@ or `skill`. Templates live in `templates/`; skills are driver skills under
 | A-P8-skill  | skill | P8 | `.claude/skills/p8-heuristic/SKILL.md` | stable | Heuristic design |
 | A-P9-skill  | skill | P9 | `.claude/skills/p9-experiments/SKILL.md` | stable | Experimentation & comparison |
 | A-P10-skill | skill | P10 | `.claude/skills/p10-report/SKILL.md` | stable | Reporting & synthesis |
+| A-P11-litreview-skill | skill | P11 | `.claude/skills/paper-litreview/SKILL.md` | stable | Scientific paper (optional): related-work review + bibliography (agent `paper-bibreviewer`) |
+| A-P11-write-skill     | skill | P11 | `.claude/skills/paper-write/SKILL.md` | stable | Scientific paper (optional): draft the manuscript in journal style (agent `paper-writer`) |
 
 > Phase P0 (Intake & scoping) has no template (it is a lightweight checklist).
 > All other phases P1–P10 ship at least one template.
@@ -86,6 +90,7 @@ Progress of applying the methodology to your problem. Status: `not-started` /
 | P8 Heuristic design | not-started | — | — | pick a candidate from the P7 synthesis; template extracted on first run |
 | P9 Experimentation & comparison | not-started | — | — | compare technique(s) |
 | P10 Reporting & synthesis | not-started | — | — | |
+| P11 Scientific paper (optional) | not-started | — | A-P11-tpl / A-P11-*-skill | OPTIONAL; turn the P0–P10 artifacts into a journal manuscript (`paper-litreview` → `paper-write`) |
 
 ---
 

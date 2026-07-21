@@ -46,12 +46,19 @@ artifact and its extracted/updated asset are recorded in the registry.
 | P6 | **MILP implementation** | Executable model (code) realizing the P5 formulation, running on the generated instances | MILP implementation template |
 | P7 | **Method review & transfer** | Per-source digests + a synthesis with 2–4 candidate approaches (each tagged for the MILP and/or heuristic phase) | digest + synthesis agents/skills (theory-paper-digest / theory-synthesize; digest-paper / synthesize-theory) |
 | P8 | **Heuristic design** | Constructive logic + local search / metaheuristic | Heuristic design template |
-| P9 | **Experimentation & comparison** | Runs of each technique over instances; KPIs; exact-vs-heuristic gap; tables/figures | Experiment protocol + results template |
-| P10 | **Reporting & synthesis** | Conclusions report + methodology retrospective | Report template |
+| P9 | **Experimentation & comparison** | Runs of each technique over instances; KPIs; exact-vs-heuristic gap; tables/figures | Experiment-runner template + experiment-protocol template |
+| P10 | **Reporting & synthesis** | Conclusions report + methodology retrospective | Report template (`templates/report.template.tex`) |
+| P11 | **Scientific paper** *(optional)* | Related-work review + bibliography + a journal-style manuscript draft | paper skeleton template + litreview/write skills & agents |
 
 Phases are not strictly linear — later phases feed corrections back to earlier
 ones (e.g. an MILP forces the formalization to be sharpened). Every such loop is
 logged as a decision.
+
+> **P9 is systematic, not ad hoc.** The experiment harness dual-logs every run
+> (rich per-run JSON + an append-only CSV ledger), gates every solution through
+> the P3 checker, caches the exact baseline, and compares with one fixed gap
+> convention (`(baseline − method)/baseline`, plus absolute Δ). The detail lives
+> in the P9 skill and the experiment-runner + experiment-protocol templates.
 
 > **Requirement traceability.** Requirements carry stable `[RQxx]` IDs assigned
 > in P1 (never reused or renumbered). The P3 checker verifies them one-to-one —
@@ -64,8 +71,9 @@ logged as a decision.
 > implementation, P8 heuristic) each produce a **detailed** description — per-stage
 > pseudocode, the objective/evaluator, complexity, a parameter table, design
 > rationale, a worked micro-example, and limitations — as a dedicated doc (e.g.
-> `docs/<problem>/heuristic.tex`), not merely the P10 report summary. The template
-> layer of this convention is `templates/algorithm-doc.template.tex`.
+> `docs/<problem>/heuristic.tex`), not merely the P10 report summary. The
+> template layer of this convention is
+> [`templates/algorithm-doc.template.tex`](templates/algorithm-doc.template.tex).
 
 > **Solution-layer phases.** P4 visualization is a solution-layer phase and a
 > sibling of the P3 checker: both consume the P3 solution schema — the checker
@@ -107,6 +115,44 @@ source. Pick a **relevant subset** for the problem and **log what you skipped**
 silently truncate the corpus. The registry records the coverage limit so the
 audit trail stays honest.
 
+### Phase P11 — Scientific paper (optional)
+
+P11 is an **OPTIONAL** final phase: it does **not** gate methodology completion
+(the methodology is complete at P10). When a submittable write-up is wanted, P11
+turns the finished case study (the P0–P10 artifacts) into a **scientific-journal
+manuscript**. Like P7, it has **no single `p11-*` driver skill** — it is realized
+by **two skills + two agents**:
+
+- **`/paper-litreview [focus]`** (skill) → **`paper-bibreviewer`** (agent) —
+  builds the paper's **related-work positioning** + a **BibTeX bibliography** from
+  the case artifacts, the **P7 digests** (reused, not re-digested), user-provided
+  sources, and (if available) a literature search. Outputs
+  `docs/<problem>/paper/related_work.tex` + `references.bib`. This is scholarly
+  **positioning for publication** ("unlike X, we …"), *distinct* from P7's
+  method-transfer analysis — but it **reuses P7's digests** as its starting corpus.
+- **`/paper-write [target-journal-or-style]`** (skill) → **`paper-writer`** (agent)
+  — drafts `docs/<problem>/paper/paper.tex` in scientific-journal style,
+  **adapting** to a target journal's structure, tone and citation conventions
+  (inferred from a journal name, an author-guide URL, or example papers under
+  `docs/<problem>/paper/style/`; neutral `article` default when none is given). It
+  consumes the P0–P10 artifacts + the P11 related-work + bibliography and applies
+  the paper skeleton template.
+
+**Folder convention.** P11 outputs live under `docs/<problem>/paper/`:
+
+- `sources/` — user-provided source material for the review.
+- `style/` — target-journal example papers / author guides (style reference).
+- `related_work.tex` + `references.bib` — from `paper-litreview`.
+- `paper.tex` — the manuscript draft from `paper-write`.
+
+The reusable asset is the journal-agnostic skeleton
+[`templates/paper.template.tex`](templates/paper.template.tex) (title/authors,
+abstract, keywords, introduction + explicit contribution bullets, related work
+`\input`, problem statement, methods, experiments & results, discussion,
+conclusions & future work, references). No invented numbers or citations: results
+trace to the P9 ledger / P10 report, citations resolve in `references.bib`, and
+the report's honest caveats are carried over.
+
 ---
 
 ## 3. Asset types
@@ -117,15 +163,19 @@ audit trail stays honest.
   `p3-solution-checker`, `p4-visualize`, `p5-formulate-milp`, `p6-implement-milp`,
   `p8-heuristic`, `p9-experiments`, `p10-report`); each states the phase's inputs,
   steps, done-when and governance, and applies that phase's template(s). **Phase
-  P7 (Method review & transfer) is the exception**: it has no single `p7-*` driver
-  skill but is realized by the two skills `digest-paper` and `synthesize-theory`
-  (each dispatching to a method-review agent — see §2's "Phase P7" subsection).
+  P7 (Method review & transfer) and the optional P11 (Scientific paper) are the
+  exceptions**: P7 has no single `p7-*` driver skill but is realized by the two
+  skills `digest-paper` and `synthesize-theory`, and P11 likewise by the two
+  skills `paper-litreview` and `paper-write` (each dispatching to an agent — see
+  §2's "Phase P7" / "Phase P11" subsections).
   Optional per-phase *agents* (e.g. a formulation/heuristic design panel for
   P5/P8, a fan-out runner for P9) may be added later. All skills are registered in
   the registry's Assets section.
 - **Agent prompts** — the governance agents in `.claude/agents/` (see §4), plus
   the phase-P7 *method-review* agents `theory-paper-digest` and `theory-synthesize`
-  (see §2's "Phase P7 — Method review & transfer" subsection).
+  (see §2's "Phase P7 — Method review & transfer" subsection) and the optional
+  phase-P11 *paper* agents `paper-bibreviewer` and `paper-writer` (see §2's "Phase
+  P11 — Scientific paper (optional)" subsection).
 
 ---
 
@@ -160,14 +210,23 @@ docs/<problem>/theory/   # phase P7 method-review outputs (per problem)
   inspiration/     # raw sources under review
   digests/         # one transfer-analysis digest per source
   synthesis.md     # cross-source synthesis + candidate approaches
-.claude/skills/    # per-phase driver skills (one per phase except P7)
+docs/<problem>/paper/    # phase P11 (optional) scientific-paper outputs (per problem)
+  sources/         # user-provided source material for the review
+  style/           # target-journal example papers / author guides
+  related_work.tex # from paper-litreview
+  references.bib   # from paper-litreview
+  paper.tex        # manuscript draft from paper-write
+.claude/skills/    # per-phase driver skills (one per phase except P7 and P11)
   p0-intake/ p1-formalize/ p2-data-model/ p3-solution-checker/
   p4-visualize/ p5-formulate-milp/ p6-implement-milp/
   p8-heuristic/ p9-experiments/ p10-report/
   digest-paper/ synthesize-theory/   # phase P7 method-review skills (no p7-* driver)
+  paper-litreview/ paper-write/       # phase P11 paper skills (no p11-* driver)
 .claude/agents/
   methodology-curator.md
   methodology-auditor.md
   theory-paper-digest.md              # phase P7: one source → transfer analysis
   theory-synthesize.md                # phase P7: digests → candidate approaches
+  paper-bibreviewer.md                # phase P11: related work + bibliography
+  paper-writer.md                     # phase P11: journal-style manuscript draft
 ```

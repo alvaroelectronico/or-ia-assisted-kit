@@ -1,0 +1,200 @@
+% =====================================================================
+% TEMPLATE — Scientific paper manuscript (methodology asset A-P11-tpl)
+% =====================================================================
+% Purpose: the OPTIONAL phase-P11 deliverable — a submittable scientific-journal
+% manuscript that turns the finished case study (the P0–P10 artifacts) into a
+% coherent paper. This is a JOURNAL-AGNOSTIC skeleton: a neutral `article`
+% default that the paper-writer agent ADAPTS to a specific target journal.
+%
+% Fill every <PLACEHOLDER>; delete guidance comments. This file is meant to be
+% BOTH standalone-compilable (it carries its own \documentclass ... \end{document}
+% below) AND, if a project prefers, \input-able from a thin main.tex (in that
+% case strip the preamble + \begin/\end{document} and keep only the body).
+%
+% Section skeleton (keep it stable; adapt ORDER/NAMING to the target journal):
+%   Title + authors → Abstract → Keywords → Introduction (motivation +
+%   explicit contribution bullets) → Related work (\input related_work.tex) →
+%   Problem statement → Methods (Exact + Heuristic) → Experiments & results →
+%   Discussion (honest caveats) → Conclusions & future work → References.
+%
+% Inputs this manuscript draws from (do NOT reproduce them — summarise + cite):
+%   * P1 problem_description.tex   — problem statement, [RQxx] requirements
+%   * P2 data_model.tex            — data / instance definitions
+%   * P5 milp_formulation.tex      — the exact model (cite the detailed doc)
+%   * P8 heuristic.tex             — the heuristic (cite the detailed doc)
+%   * P9 ledger / P10 report.tex   — results, tables, gap convention, caveats
+%   * P11 related_work.tex + references.bib — scholarly positioning (this phase)
+%
+% Discipline (inherited from the report + the P11 agents):
+%   * No invented numbers — every result traces to the P9 ledger / P10 report.
+%   * No invented citations — every \cite resolves in references.bib.
+%   * Carry over the report's HONEST CAVEATS; do not overclaim.
+% =====================================================================
+
+% ---------------------------------------------------------------------
+% DOCUMENT CLASS + CITATION STYLE — choose per TARGET JOURNAL.
+%   * Neutral default below: `article` + natbib author–year. Good when no target
+%     journal is given (state the assumption in the paper-writer's report).
+%   * For a specific journal, SWAP this preamble for the publisher's class and
+%     citation style, e.g.:
+%       - Elsevier:  \documentclass{elsarticle}      (numeric, \usepackage-free bib)
+%       - Springer:  \documentclass{sn-jnl}          (sn-mathphys / basic bst)
+%       - INFORMS:   \documentclass{informs3}
+%       - IEEE:      \documentclass{IEEEtran}         (IEEEtran bst, numeric)
+%     Match the journal's CITATION FORMAT: numeric (\cite → [1]) vs author–year
+%     (\citep/\citet). Keep the SAME \label/\cite keys regardless of style so the
+%     bibliography (references.bib) is portable.
+% ---------------------------------------------------------------------
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[round]{natbib}   % author–year default; switch to journal style
+\usepackage{hyperref}
+
+\title{<PAPER TITLE: concise, states the problem + the contribution>}
+
+% Authors + affiliations: leave a clearly-marked TODO rather than inventing them.
+\author{<AUTHOR NAMES>\\ <AFFILIATION(S)> \\ \texttt{<CONTACT EMAIL>}}
+% % TODO authors/affiliations/funding — fill before submission
+\date{<DATE or \today>}
+
+\begin{document}
+\maketitle
+
+% ---------------------------------------------------------------------
+\begin{abstract}
+% 150–250 words (respect the journal's limit): the problem and why it matters,
+% what is proposed (exact model + heuristic), the headline result (the single
+% strongest evidence-backed finding), and the takeaway. No citations, no
+% undefined acronyms. Numbers must match the results section exactly.
+<ABSTRACT: problem + motivation, the methods proposed, the headline result,
+the takeaway>
+\end{abstract}
+
+\noindent\textbf{Keywords:} <KEYWORD 1>; <KEYWORD 2>; <KEYWORD 3>; <...>
+% ^ 4–6 keywords; prefer the journal's controlled vocabulary if it has one.
+
+% =====================================================================
+\section{Introduction}
+% Funnel: (1) the real-world / scientific context and why the problem matters;
+% (2) the specific problem and what makes it hard; (3) the gap in existing work
+% (one sentence, expanded in Related work); (4) what THIS paper does.
+% Keep it self-contained — a reader outside the sub-field should follow it.
+<INTRODUCTION: motivation, the problem, the gap, and what this paper does>
+
+% Explicit contribution bullets — the reviewer's checklist. Each is a concrete,
+% defensible claim backed later by the paper (a model, an algorithm, an
+% experimental finding). Do not list anything you cannot substantiate.
+\paragraph{Contributions.}
+\begin{itemize}
+  \item <CONTRIBUTION 1: e.g. a formal model of the problem>.
+  \item <CONTRIBUTION 2: e.g. an exact formulation and/or a heuristic>.
+  \item <CONTRIBUTION 3: e.g. an experimental comparison establishing X>.
+  \item <CONTRIBUTION 4 (optional): reusable artifacts / instances released>.
+\end{itemize}
+
+% One sentence on the paper's structure (optional; some journals omit it).
+<OPTIONAL: "The remainder of the paper is organized as follows ...">
+
+% =====================================================================
+\section{Related work}
+% Scholarly POSITIONING (phase P11 bibreviewer output): thematic groups of prior
+% work + an explicit gap/positioning paragraph. Kept in a separate file so the
+% bibreviewer owns it and the writer owns the rest.
+\input{related_work.tex}
+
+% =====================================================================
+\section{Problem statement}
+% State the problem precisely: the inputs (from the P2 data model), the decisions,
+% the constraints/requirements (reference the [RQxx] ids from P1), and the
+% objective. Formal but concise — enough to make the methods well-defined; the
+% full data model lives in the cited data-model doc.
+<PROBLEM STATEMENT: inputs, decisions, constraints/[RQxx] requirements, objective>
+
+% =====================================================================
+\section{Methods}
+
+\subsection{Exact <EXACT METHOD NAME>}
+% Summarise the exact model and CITE the detailed formulation doc rather than
+% reproducing every constraint: the decision variables/objects, the objective,
+% the governing constraint families, and the solver stack + run knobs. If space
+% allows, show only the objective and 1–2 signature constraints.
+<EXACT METHOD SUMMARY: variables/objects, objective, key constraint families,
+solver stack + run knobs; cite the detailed formulation doc>
+
+\subsection{Heuristic <HEURISTIC METHOD NAME>}
+% Name the approach (and the literature family it belongs to, cited). Summarise
+% its components as a short list; CITE the detailed algorithm doc for pseudocode.
+\begin{enumerate}
+  \item \textbf{<CONSTRUCTIVE STEP>} --- <requirement-respecting builder; note
+        which hard requirements ([RQxx]) it enforces by construction>.
+  \item \textbf{<OBJECTIVE EVALUATOR>} --- <the deterministic evaluator producing
+        a full, checker-valid solution + score (the reusable core)>.
+  \item \textbf{<SEARCH / METAHEURISTIC>} --- <the improvement loop: degree of
+        freedom perturbed, accept rule, restarts>.
+\end{enumerate}
+% One sentence: both methods emit the SAME solution schema and are validated by
+% the same checker, so the comparison is apples-to-apples.
+<CLOSING: both methods emit the same solution schema, judged identically>
+
+% =====================================================================
+\section{Experiments and results}
+% Setup FIRST (brief), then the results table + narrative.
+% Setup: the benchmark (deterministic instances from the P2 generator, size grid),
+% the harness (dual-logged, compliance-gated by the P3 checker), the ONE gap
+% convention (defined once), and reproducibility stamps. Numbers as logged.
+<EXPERIMENTAL SETUP: benchmark size grid, harness + compliance gate, the fixed
+gap convention (state what a positive value means), reproducibility>
+
+% Results table — one row per instance (or per size class). Keep numbers EXACTLY
+% as in the P9 ledger / P10 report.
+\begin{table}[t]
+\centering
+\caption{<TABLE CAPTION: what is compared, over which instances>}
+\label{tab:results}
+\begin{tabular}{l<COLUMN SPEC: one column per reported metric>}
+\toprule
+instance & <BASELINE> obj & <BASELINE> status & <BASELINE>\,s & <METHOD> obj & <METHOD>\,s \\
+\midrule
+<INSTANCE> & <obj> & <status> & <time> & <obj> & <time> \\
+% ... one row per instance / size class
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Narrative: the headline finding stated plainly — the gap across the benchmark,
+% how many instances the exact method closed, behavior where it stalled (objective
+% + speed factor), that every reported solution is checker-valid, runtime envelope.
+<RESULTS NARRATIVE: headline gap; closed count; behavior on unclosed instances;
+all solutions checker-valid; runtime envelope>
+
+% =====================================================================
+\section{Discussion}
+% Interpret the results, then state the HONEST CAVEATS explicitly (carry them over
+% from the P10 report — do not launder them out for publication). Typical:
+%   (i)   benchmark size/coverage — correctness validation vs scaling study;
+%   (ii)  was the exact method actually stressed (was a positive gap demonstrable)?
+%   (iii) determinism/variance limits.
+<DISCUSSION: interpretation + the honest caveats bounding what the results
+do and do not establish>
+
+% =====================================================================
+\section{Conclusions and future work}
+% 2–4 sentences: the evidence-grounded takeaway (which method, and why), then the
+% concrete next steps (scaling study, parameter sweeps, richer instances, etc.).
+<CONCLUSIONS: the evidence-grounded takeaway + concrete future work>
+
+% =====================================================================
+% Acknowledgements / funding / data-availability — optional, journal-dependent.
+% \paragraph{Acknowledgements.} <... or delete>
+% \paragraph{Data availability.} <instances/code release note, or delete>
+
+% =====================================================================
+% References — style must match the target journal (see the class comment above).
+% All \cite keys resolve in references.bib (produced by the P11 bibreviewer).
+\bibliographystyle{plainnat}  % swap for the journal's .bst (e.g. elsarticle-num)
+\bibliography{references}
+
+\end{document}
