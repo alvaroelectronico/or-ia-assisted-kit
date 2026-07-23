@@ -45,6 +45,37 @@ Design contract (keep all of it)
     feasibility-critical content produced by `construct`.
   * Multi-restart: run the loop from several seeds, keep the best; this is the
     cheap variance reduction that turns a greedy into a metaheuristic.
+
+Scalability (read before running large instances)
+--------------------------------------------------
+Two knobs keep a single experiment battery tractable end-to-end as instance size
+grows, plus one important limitation to plan around:
+
+  * BOUNDED BEST-INSERTION (`max_positions`). Full best-insertion evaluates the
+    reconstructed candidate at every one of the O(n) insertion positions, which
+    on large instances dominates cost. Above a size threshold, cap the number of
+    positions tried to a bounded sample that ALWAYS includes the two endpoints
+    (front and back), so reconstruction cost stays bounded. Leave the cap unset
+    (`None`) on small instances so they keep the exhaustive search and stay
+    bit-for-bit identical to the un-capped version.
+  * SIZE-ADAPTIVE BUDGET. Above the same size threshold, also cap the
+    iterations/restarts (fewer, cheaper passes) and set the position cap, so the
+    whole battery finishes. Wire this in the caller (the P9 harness), not here:
+    the heuristic just exposes the knobs. Below the threshold, use the full
+    budget. See the size-adaptive dispatch sketch near `solve_heuristic`.
+  * LIMITATION — the evaluator is NON-INCREMENTAL inside best-insertion. If
+    `evaluate` is re-run FROM SCRATCH for every trial insertion (as this scaffold
+    does for clarity), the per-reconstruction cost is O(positions x evaluator),
+    and because the evaluator's own cost is STRUCTURE-driven (e.g. how the
+    sequential state evolves), not purely size-driven, worst-case runtime has
+    HIGH VARIANCE even when the median is fine: a pathological instance can spike
+    orders of magnitude above the median while a larger but better-structured one
+    runs faster. The robust fix is (1) an INCREMENTAL DELTA-EVALUATOR that scores
+    an insertion by updating state rather than recomputing it, and (2) a
+    WALL-CLOCK SEARCH BUDGET that stops the loop by elapsed time, not iteration
+    count, so no single run can run away. Both are recommended before using this
+    on production-scale instances; the bounded cap above only tames the position
+    factor, not the evaluator's per-call variance.
 """
 
 from __future__ import annotations
@@ -174,12 +205,39 @@ def _initial_order(objects: list[dict]) -> list[str]:
 # 3. ITERATED GREEDY / local search over the DEGREE OF FREEDOM (the order).
 #    destroy k objects -> best-insertion reconstruct -> accept if not worse.
 #    All randomness through the passed-in rng, so a fixed seed is reproducible.
+#
+#    `max_positions` bounds the best-insertion neighbourhood (see the Scalability
+#    note in the module docstring): when None (default), every insertion position
+#    is tried (exhaustive, best for small instances); when set, only a bounded
+#    sample of positions is evaluated, ALWAYS including the two endpoints, so
+#    reconstruction cost stays bounded on large instances.
 # ---------------------------------------------------------------------
-def iterated_greedy(instance, objects, <RES>, iterations=150, seed=0, destroy=2):
+def _insertion_positions(n: int, max_positions: int | None, rng: random.Random):
+    """Candidate insertion positions in 0..n (inclusive both ends).
+
+    Returns all n+1 positions when uncapped or the cap is not binding; otherwise
+    a bounded, sorted sample that ALWAYS includes the endpoints 0 and n (so the
+    front/back placements — often the good ones — are never missed), padded with
+    distinct random interior positions up to `max_positions`. Deterministic given
+    `rng`."""
+    if max_positions is None or n + 1 <= max_positions:
+        return range(n + 1)
+    positions = {0, n}                                  # always keep both endpoints
+    while len(positions) < max_positions:
+        positions.add(rng.randint(0, n))
+    return sorted(positions)
+
+
+def iterated_greedy(instance, objects, <RES>, iterations=150, seed=0, destroy=2,
+                    max_positions: int | None = None):
     rng = random.Random(seed)
     by_id = {o["id"]: o for o in objects}
 
     def ev(o):                                   # score-only shortcut
+        # NOTE (scalability): this re-runs `evaluate` FROM SCRATCH, so it is
+        # NON-INCREMENTAL — see the module docstring's LIMITATION. For
+        # production-scale instances replace with an incremental delta-evaluator
+        # (score an insertion by updating state, not recomputing it).
         return evaluate(instance, by_id, o, <RES>)[2]
 
     best = _initial_order(objects)
@@ -191,10 +249,12 @@ def iterated_greedy(instance, objects, <RES>, iterations=150, seed=0, destroy=2)
         k = min(destroy, max(0, len(cur) - 1))
         for _ in range(k):
             removed.append(cur.pop(rng.randrange(len(cur))))
-        # --- RECONSTRUCT: greedy best-insertion of each removed element ----
+        # --- RECONSTRUCT: best-insertion over a (possibly bounded) set of
+        #     positions. Uncapped -> exhaustive O(n); capped -> bounded sample
+        #     that always includes the endpoints.
         for r in removed:
             best_pos, best_o = 0, None
-            for pos in range(len(cur) + 1):
+            for pos in _insertion_positions(len(cur), max_positions, rng):
                 o = ev(cur[:pos] + [r] + cur[pos:])
                 if best_o is None or o < best_o:   # < for a minimisation score
                     best_o, best_pos = o, pos
@@ -217,14 +277,28 @@ def solve_heuristic(instance: dict, config: dict | None = None):
     by_id = {o["id"]: o for o in objects}
     <RES> = instance["config"]["<resource_param>"]
 
+    # --- SIZE-ADAPTIVE BUDGET -------------------------------------------------
+    # Above a size threshold, spend less search and bound best-insertion so a
+    # full experiment battery stays tractable; below it, run the full search with
+    # exhaustive best-insertion (max_positions=None => unchanged small-instance
+    # behaviour). Prefer explicit config overrides when the caller sets them.
+    # Replace `<SIZE(instance)>` with a cheap size proxy (e.g. |entities| *
+    # |owners|) and `<SIZE_THRESHOLD>` with the point past which the full budget
+    # gets slow. The P9 harness is the natural place to pick these per instance.
+    big = <SIZE(instance)> > <SIZE_THRESHOLD>
+    iterations = config.get("iterations", 40 if big else 150)
+    restarts = config.get("restarts", 2 if big else 4)
+    max_positions = config.get("max_positions", 25 if big else None)
+
     # Multi-restart: keep the best over several seeds.
     best, best_obj = None, None
-    for r in range(config.get("restarts", 4)):
+    for r in range(restarts):
         order, obj = iterated_greedy(
             instance, objects, <RES>,
-            iterations=config.get("iterations", 150),
+            iterations=iterations,
             seed=config.get("seed", 0) + r,
             destroy=config.get("destroy", 2),
+            max_positions=max_positions,
         )
         if best_obj is None or obj < best_obj:
             best, best_obj = order, obj

@@ -34,6 +34,14 @@ battery still gives an early cross-size read:
 optimality — it is the baseline. Grow it (more sizes, more seeds) as heuristics
 land, and LOG WHAT YOU DROP. -->
 
+<!-- SIZE GUARD (document it explicitly). When the grid is grown into a scaling
+study (many size types x K seeds), the exact/reference method stops being viable
+past some size. Guard it OFF beyond a documented threshold (e.g. skip the exact
+method when `<size proxy> > <THRESHOLD>`) so the battery stays tractable, and run
+only the heuristics on the larger types. State the threshold and its rationale
+here — a reader must know which types HAVE an exact baseline (and therefore a
+gap) and which do not. Never let the guard silently drop the exact method. -->
+
 ## Methods
 
 Registered in `experiments.py` (`METHODS`) and swept as `EXPERIMENTS`
@@ -66,6 +74,16 @@ Registered in `experiments.py` (`METHODS`) and swept as `EXPERIMENTS`
   limit", not proven superiority — say so.
 - **Log what you drop.** If you cap the grid (time limits, subset of sizes/seeds),
   record exactly what was excluded and why — never silently truncate.
+- **Aggregate reporting for a scaling study.** When the benchmark spans many size
+  types (N size types x K seeds), report results **per type — mean $\pm$ sd over
+  the K seeds** — NOT per individual instance (a per-instance table stops being
+  readable at scale; keep it only for the small correctness benchmark). The
+  means-per-type table carries: size descriptor, mean objective $\pm$ sd,
+  **median AND max** runtime (median = robust central tendency, max = exposes
+  worst-case variance — do not hide a spike behind the median), feasibility count
+  (how many of K passed the P3 checker), and gap-vs-exact **only where the exact
+  baseline exists** (dash where the size guard turned it off — see the Benchmark
+  size-guard note). State explicitly which types have no exact baseline.
 
 ## Logs & outputs
 

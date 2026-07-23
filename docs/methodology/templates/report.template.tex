@@ -126,6 +126,43 @@ instance & <BASELINE> obj & <BASELINE> status & <BASELINE>\,s & <METHOD> obj & <
 behavior on any unclosed instance (objective tie/beat + speed factor); all
 solutions checker-valid; runtime envelope>
 
+% ---------------------------------------------------------------------
+% OPTIONAL — MEANS-PER-TYPE table (use for a LARGER benchmark / scaling study).
+% When the benchmark spans many size types (N size types x K seeds), a per-
+% instance table stops being readable. Aggregate and report ONE ROW PER SIZE
+% TYPE (mean +/- sd over the K seeds), NOT per individual instance. Keep the
+% per-instance table above only for the small correctness benchmark; use this
+% table for the scaling study. Column guidance:
+%   * size descriptor — the type label + its size dimensions (one column, or a
+%     few) so the reader sees the grid the aggregate covers;
+%   * mean objective +/- sd — central tendency and spread of the objective over
+%     the K seeds of that type;
+%   * MEDIAN runtime AND MAX runtime — report the MEDIAN as the robust central
+%     tendency (means are skewed by worst-case spikes) AND the MAX to expose
+%     worst-case variance (structure-driven runtime can spike orders of
+%     magnitude above the median — do not hide it behind the mean/median);
+%   * feasibility count — how many of the K solutions passed the P3 checker
+%     (e.g. "10/10"); a scaling study still gates every solution;
+%   * gap-vs-exact — ONLY where an exact baseline exists. Beyond the size
+%     threshold where the exact method is size-guarded OFF (see the setup note),
+%     put a dash "--" and state explicitly which types have NO exact baseline.
+% ---------------------------------------------------------------------
+% \begin{center}
+% \begin{tabular}{l<COLUMN SPEC: size dims + r columns>}
+% \hline
+% type & <SIZE DIMS> & mean obj $\pm$ sd & median\,s & max\,s & feasible & gap \\
+% \hline
+% <TYPE 1 (has exact baseline)>   & <...> & <m $\pm$ s> & <med> & <max> & <k/K> & <gap> \\
+% <TYPE 2 (exact size-guarded off)> & <...> & <m $\pm$ s> & <med> & <max> & <k/K> & -- \\
+% % ... one row per size type; "--" in the gap column where no exact baseline
+% \hline
+% \end{tabular}
+% \end{center}
+% <SCALING NARRATIVE: state which types HAVE an exact baseline and which are
+% guarded off (dashes); report gap on the comparable types; report the runtime
+% envelope via median + max and call out any worst-case spike explicitly; confirm
+% all solutions are checker-valid across every type.>
+
 \section{Discussion}
 % Interpret the results, then state the HONEST CAVEATS explicitly — this section
 % earns the report its credibility. Typical caveats to consider (keep those that
