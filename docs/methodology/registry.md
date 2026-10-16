@@ -8,8 +8,24 @@ read it freely but edits should go through the curator to keep it consistent.
 > reusable assets bundled in the kit; §B and §C start empty — you fill them as you
 > apply the phases to *your* problem.
 
-Three sections: **Assets** (the reusable layer), **Case-study status** (progress
-of your problem), and **Decision log**.
+Four sections: **Project binding** (what the generic placeholders mean in this
+repo), **Assets** (the reusable layer), **Case-study status** (progress of your
+problem), and **Decision log**.
+
+---
+
+## 0. Project binding
+
+Fixed during P0 (`p0-intake`); the solver stack is fixed in P6. Skills, agents
+and templates resolve `<problem>` and `<problem>_model` from this table.
+
+| Key | Value | Notes |
+|-----|-------|-------|
+| Problem slug `<problem>` | `<problem>` | docs live in `docs/<problem>/`; P7/P11 outputs in `docs/<problem>/theory/`, `docs/<problem>/paper/` |
+| Code package `<problem>_model` | `<problem>_model` | importable Python package at the repo root |
+| Objective sense | `<minimize / maximize>` | drives the P9 gap sign |
+| Cornflow app | `<yes / no>` | yes ⇒ P3 checker subclasses `ExperimentCore`; no ⇒ stdlib mixin fallback |
+| Solver stack | `<e.g. Pyomo + Gurobi (gurobi_direct) / Pyomo + HiGHS>` | fixed in P6 |
 
 ---
 
@@ -84,12 +100,12 @@ Progress of applying the methodology to your problem. Status: `not-started` /
 | P2 Data model & instances | not-started | — | A-P2-tpl-* | |
 | P3 Solution model & checker | not-started | — | A-P3-tpl-* | |
 | P4 Solution visualization | not-started | — | A-P4-tpl-viz-* | static or dynamic per case |
-| P5 MILP formulation | not-started | — | A-P5-tpl | |
+| P5 MILP formulation | not-started | — | A-P5-tpl, A-algdoc-tpl | |
 | P6 MILP implementation | not-started | — | A-P6-tpl | pick solver stack |
 | P7 Method review & transfer | not-started | — | A-review-* | digest a curated subset → synthesis; log what you skip |
-| P8 Heuristic design | not-started | — | — | pick a candidate from the P7 synthesis; template extracted on first run |
-| P9 Experimentation & comparison | not-started | — | — | compare technique(s) |
-| P10 Reporting & synthesis | not-started | — | — | |
+| P8 Heuristic design | not-started | — | A-P8-tpl, A-algdoc-tpl | pick a candidate from the P7 synthesis |
+| P9 Experimentation & comparison | not-started | — | A-P9-tpl-runner, A-P9-tpl-protocol | compare technique(s) |
+| P10 Reporting & synthesis | not-started | — | A-P10-tpl | |
 | P11 Scientific paper (optional) | not-started | — | A-P11-tpl / A-P11-*-skill | OPTIONAL; turn the P0–P10 artifacts into a journal manuscript (`paper-litreview` → `paper-write`) |
 
 ---

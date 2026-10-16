@@ -2,189 +2,325 @@
 
 A **portable, reusable methodology** for taking a written combinatorial-optimization
 problem from a plain description to a working, verified solution (heuristics **and**
-a MILP, compared), LLM/agent-assisted, with lightweight governance that keeps the
-whole process reproducible. Drop this kit into a brand-new project and follow the
-phases.
+a MILP, compared). It is designed to be run with Claude Code (skills + subagents)
+and has lightweight governance that keeps the process reproducible.
 
-It is a **self-contained snapshot** exported from a worked case study. Everything
-here is problem-agnostic: templates use `<PLACEHOLDER>`s, skills refer to a generic
-`<problem>` and a `<problem>_model/` code package.
+Everything here is problem-agnostic: templates use `<PLACEHOLDER>`s, and skills refer
+to a generic `<problem>` and a `<problem>_model/` code package. Each repository that
+uses the kit binds those placeholders once, in its registry (§0 *Project binding*).
+
+Version: see [`VERSION`](VERSION) · history: [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
-## What's inside
+## 1. What's inside
 
 ```
 methodology-kit/
-  README.md                     ← you are here (what it is + how to reuse)
+  README.md                ← this file: what the kit is + how to reuse it
+  VERSION, CHANGELOG.md    ← kit version (semver) and release notes
+  kit.py                   ← install / status / update / resolve / promote / doctor
+  claude-snippet.md        ← block injected into the target repo's CLAUDE.md
+  tests/test_kit.py        ← tests for kit.py
   .claude/
-    skills/                     ← phase driver skills (p0-intake … p10-report)
-                                  + P7 method-review skills (digest-paper, synthesize-theory)
-                                  + P11 paper skills (paper-litreview, paper-write)
-    agents/                     ← governance agents (curator + auditor)
-                                  + P7 method-review agents (theory-paper-digest, theory-synthesize)
-                                  + P11 paper agents (paper-bibreviewer, paper-writer)
-  docs/
-    methodology/
-      README.md                 ← the PLAYBOOK (phases, two-layer principle, governance)
-      registry.md               ← living log — ships BLANK (fill it for your problem)
-      templates/                ← the reusable layer (17 templates)
+    skills/   (14)         ← phase driver skills p0-intake … p10-report (no P7 driver)
+                             + P7 method review: digest-paper, synthesize-theory
+                             + P11 paper (optional): paper-litreview, paper-write
+    agents/   (6)          ← governance: methodology-curator, methodology-auditor
+                             + P7: theory-paper-digest, theory-synthesize
+                             + P11: paper-bibreviewer, paper-writer
+  docs/methodology/
+    README.md              ← the PLAYBOOK (phases, two-layer principle, governance)
+    registry.md            ← per-repo living log — ships BLANK (binding, assets, status, decisions)
+    templates/  (17)       ← the reusable layer
 ```
 
-- **Skills** (`.claude/skills/`) — the reproducible recipe for each phase. Each one
-  states its inputs, steps, done-criteria, governance, and which template(s) to apply.
-- **Agents** (`.claude/agents/`) — the governance pair `methodology-curator` (records
-  progress + extracts templates) and `methodology-auditor` (read-only consistency
-  checks); plus the **method-review** pair `theory-paper-digest` (digest one source)
-  and `theory-synthesize` (turn digests into candidate approaches) — see §"Method
-  review" below; plus the **optional paper** pair `paper-bibreviewer` (related-work +
-  bibliography) and `paper-writer` (journal-style manuscript) for phase P11.
-- **Playbook** (`docs/methodology/README.md`) — the authoritative description of the
-  method: the phases, the two-layer (instance + template) principle, and how the
-  governance loop works.
-- **Templates** (`docs/methodology/templates/`) — parameterized documents/code you
-  fill in per problem (problem description, data model, instance schema + generator,
-  solution schema + checker, visualization contract + backends, MILP formulation,
-  MILP implementation).
-- **Registry** (`docs/methodology/registry.md`) — the living record of assets,
-  case-study progress, and decisions. It ships with the asset list filled and the
-  case/decision sections **empty**, ready for your problem.
+Only `.claude/skills/`, `.claude/agents/`, `docs/methodology/README.md` and
+`docs/methodology/templates/` are copied into a target repo and kept in sync
+(**kit-managed**). `registry.md` is copied once and then belongs to the target. The
+kit's own `README.md`, `kit.py`, `tests/`, `VERSION` and `CHANGELOG.md` stay in the
+kit.
 
-## The phases
+> The Python templates are **fill-in skeletons**: they contain `<PLACEHOLDER>`
+> tokens and are not importable until filled. They are copied into the case's
+> code package and completed during the matching phase. They are not a library.
+
+## 2. The phases
 
 | ID | Phase | Produces | Skill |
 |----|-------|----------|-------|
-| P0 | Intake & scoping | Scoped brief from a raw description | `p0-intake` |
+| P0 | Intake & scoping | Scoped brief + Project binding | `p0-intake` |
 | P1 | Formalization | Decision / Requirements (`[RQxx]`) / Objective / Input | `p1-formalize` |
 | P2 | Data model & instances | Data model + JSON schema + instance generator | `p2-data-model` |
 | P3 | Solution model & checker | Solution schema + per-requirement checker | `p3-solution-checker` |
 | P4 | Solution visualization | Case-specific renderer (static image or dynamic HTML) | `p4-visualize` |
 | P5 | MILP formulation | Mathematical model (LaTeX, no code) | `p5-formulate-milp` |
 | P6 | MILP implementation | Executable model (Pyomo + solver) | `p6-implement-milp` |
-| P7 | Method review & transfer | Per-source digests + synthesis of 2–4 candidate approaches | `digest-paper` + `synthesize-theory` |
+| P7 | Method review & transfer | Per-source digests + 2–4 candidate approaches | `digest-paper` + `synthesize-theory` |
 | P8 | Heuristic design | Constructive + local-search heuristic (from a P7 candidate) | `p8-heuristic` |
-| P9 | Experimentation & comparison | KPIs, exact-vs-heuristic gap | `p9-experiments` |
+| P9 | Experimentation & comparison | Logged battery, KPIs, exact-vs-heuristic gap | `p9-experiments` |
 | P10 | Reporting & synthesis | Conclusions + methodology retrospective | `p10-report` |
-| P11 | Scientific paper *(optional)* | Related-work review + bibliography + a journal-style manuscript | `paper-litreview` + `paper-write` |
+| P11 | Scientific paper *(optional)* | Related work + bibliography + journal-style draft | `paper-litreview` + `paper-write` |
 
-Phases are not strictly linear — later phases can feed corrections back to earlier
-ones; every such loop is logged in the registry.
-
-## Phase P7 — Method review & transfer
-
-Before committing to the heuristic, survey the literature and judge how each method
-transfers to *your* problem. This is **phase P7** — run it after P6 (MILP
-implementation) and before P8 (heuristic); it feeds P8 and can also feed the MILP
-(matheuristic candidates reuse P5/P6). It has no single `p7-*` driver skill; it is
-realized by **two skills + two agents**:
-
-- `/digest-paper <path> [focus]` → the `theory-paper-digest` agent reads one source
-  and writes `docs/<problem>/theory/digests/<slug>.md`, tying *what transfers* to
-  your `[RQxx]` requirements, decisions and objective.
-- `/synthesize-theory [focus]` → the `theory-synthesize` agent cross-reads all digests
-  and writes `docs/<problem>/theory/synthesis.md` with 2–4 candidate approaches
-  (each tagged for the MILP and/or heuristic phase) and a recommendation.
-
-Curate a **relevant subset** of sources (don't digest everything), and log what you
-skipped. Outputs live under `docs/<problem>/theory/` (`inspiration/`, `digests/`,
-`synthesis.md`).
-
-## Phase P11 — Scientific paper (optional)
-
-An **optional** final stage: turn the finished case study (the P0–P10 artifacts)
-into a submittable scientific-journal manuscript. Like P7, two skills + two agents:
-
-- `/paper-litreview [focus]` → the `paper-bibreviewer` agent builds the paper's
-  **related-work positioning** + a **BibTeX bibliography** (reusing the P7 digests,
-  user sources, and — if available — a literature search).
-- `/paper-write [target-journal-or-style]` → the `paper-writer` agent drafts
-  `docs/<problem>/paper/paper.tex` in journal style, **adapting to a target
-  journal's** structure/tone/citation conventions, from the P0–P10 artifacts +
-  the related-work + bibliography.
-
-Backed by `templates/paper.template.tex`. Outputs live under `docs/<problem>/paper/`
-(`sources/`, `style/`, `related_work.tex`, `references.bib`, `paper.tex`). It does
-**not** gate methodology completion.
+The playbook ([`docs/methodology/README.md`](docs/methodology/README.md)) is the
+authoritative description: the two-layer (instance + template) principle, the P7 and
+P11 workflows, the governance loop and the folder conventions.
 
 ---
 
-## How to reuse it in a project from scratch
+## 3. How the kit is reused across repositories
 
-1. **Copy the kit's `.claude/` and `docs/` into your new project's root.**
-   ```bash
-   cp -r methodology-kit/.claude   <new-project>/
-   cp -r methodology-kit/docs      <new-project>/
-   ```
-   If the target already has a `.claude/`, merge (copy the `skills/` and `agents/`
-   subfolders in).
+**Decision:** the kit lives in **its own git repository** and is the single source of
+truth for the reusable layer. Each project that uses it receives a **copy** of the
+kit-managed files plus a lock file, `.methodology-kit.lock.json`, written and read
+by `kit.py`. The lock records the kit version and, per file, the hash of the kit
+content it was installed from. That gives a three-way comparison for every file:
 
-2. **Start a fresh Claude Code session** in the new project so it discovers the 10
-   skills (`p0-intake` … `p10-report`, plus the P7 method-review skills) and the 4
-   agents. (In the VS Code extension:
-   new chat, or “Developer: Reload Window”.)
+| local vs base | kit vs base | state | what `update` does |
+|---|---|---|---|
+| same | same | `ok` | nothing |
+| changed | same | `local` (template matured here) | keeps it; candidate for `promote` |
+| same | changed | `upstream` (kit improved) | overwrites with the kit version |
+| changed | changed | `conflict` | writes `<file>.kit-new` next to it for a manual merge |
 
-3. **Work the phases in order.** Invoke each phase's skill — type `/p0-intake` (then
-   `/p1-formalize`, …) or ask Claude to *use skill `pN-...`*. Each skill tells you
-   exactly what to produce and applies its template(s). You create, as you go:
-   - `docs/<problem>/` — the problem's docs (problem description, data model, MILP
-     formulation, …), compiled by a small `main.tex` + `compile.py` harness.
-   - `<problem>_model/` — the problem's code package (instance generator, schemas,
-     solution checker, MILP model, heuristics, visualizer).
+Changes flow both ways:
 
-4. **Run the governance loop.** After a phase produces something, invoke
-   `methodology-curator` to record it in `registry.md` and extract/update its
-   template. Before moving between phases, invoke `methodology-auditor` to catch
-   drift. The registry is your living log for the new problem.
+```
+            kit.py install / update
+  kit repo ───────────────────────────▶ project repo (copy + lock)
+     ▲                                        │
+     └──────────── kit.py promote ────────────┘
+        (only generic improvements; case-specific terms are blocked)
+```
 
-5. **Repeat** through P10. By the end you have both a solution and an updated,
-   more-mature set of templates for the *next* problem.
+**Why copies instead of the alternatives:**
 
-### Quick start (TL;DR)
-> Copy `.claude/` + `docs/` → new session → `/p0-intake` → follow each skill P0→P10,
-> invoking `methodology-curator` after each phase and `methodology-auditor` between
-> phases.
+- **Git submodule / subtree:** Claude Code does pick up a nested `.claude/` (e.g.
+  `vendor/methodology-kit/.claude/`), but only **scoped to that subfolder**, so the
+  skills would not apply to the project's own `docs/` and code. Symlinking the
+  folders into the root is fragile on Windows. A submodule mounted at `.claude/`
+  would take over that folder, so the project couldn't keep its own skills or
+  settings there.
+- **Claude Code plugin:** good for distributing skills and agents. However, the
+  methodology expects the `methodology-curator` agent to *edit the templates inside
+  the project* as they mature. Plugin files live in a user-level cache outside the
+  repo, are not versioned with the project, and are replaced on plugin update.
+  Plugin skills are also namespaced (`/<plugin>:p0-intake`), which breaks the plain
+  names the skills and playbook use to refer to each other. A plugin could be
+  revisited for the skills and agents alone if the templates ever become stable.
+- **Hand copying (what v1.0 did):** it drifted. Fifteen files had diverged between the
+  case study and the exported kit by the time it was reviewed. `kit.py` makes the
+  divergence visible (`status`) and recoverable (`update`, `promote`).
 
 ---
 
-## Core conventions (details in the playbook)
+## 4. Instructions
+
+Requirements: Git, Python ≥ 3.10 (standard library only for `kit.py`), Claude Code
+(CLI, desktop or VS Code extension). All commands work in Git Bash and PowerShell;
+paths below assume the kit is cloned **next to** your projects:
+
+```
+repos/
+  methodology-kit/      ← the kit repo
+  my-new-problem/       ← a project that uses it
+```
+
+### 4.1 One time: publish the kit as its own repository
+
+The kit currently lives in `methodology-kit/` inside the case-study repository. To
+extract it **with its history** into a new repository:
+
+```bash
+# in the case-study repo (commit the kit changes first)
+git subtree split --prefix=methodology-kit -b methodology-kit-export
+
+# create an empty remote repo (e.g. on GitHub: <org>/methodology-kit), then:
+git push <remote-url-of-new-repo> methodology-kit-export:main
+
+# clone it next to your projects
+cd ..
+git clone <remote-url-of-new-repo> methodology-kit
+cd methodology-kit
+python -m unittest discover tests      # kit.py tests
+python kit.py doctor                   # kit self-consistency
+```
+
+From then on, **edit generic assets in the kit repo** (or promote them from a
+project, §4.5), never by copying files by hand.
+
+### 4.2 Start a new project with the kit
+
+```bash
+cd ../my-new-problem                   # an existing git repo (can be empty)
+python ../methodology-kit/kit.py install .
+```
+
+This:
+- copies the 14 skills, 6 agents, the playbook and 17 templates;
+- seeds a blank `docs/methodology/registry.md` (only if there is none);
+- appends the kit block to `CLAUDE.md` (it is created if missing). The block sits
+  between `<!-- methodology-kit:start/end -->` markers and is refreshed on every
+  `update`, so write your own notes outside it;
+- writes `.methodology-kit.lock.json`.
+
+If a file already exists with different content (e.g. the project has its own
+`.claude/skills/p0-intake/`), `install` stops and lists the clashes. Re-run with
+`--adopt` to keep your versions and track them as local changes, or `--force` to
+overwrite them with the kit's.
+
+Then:
+
+1. **Commit** the result (`.claude/`, `docs/methodology/`, `CLAUDE.md`,
+   `.methodology-kit.lock.json`). The lock file must be versioned; it is what makes
+   later updates safe.
+2. **Open a new Claude Code session** in the project so it discovers the skills and
+   agents. In VS Code, start a new chat or run *Developer: Reload Window*. Typing `/`
+   should list `p0-intake` … `p10-report`.
+3. **Run `/p0-intake`** with the raw problem description. Besides the scoped brief,
+   P0 fills **registry §0 Project binding**: the problem slug (→ `docs/<slug>/`),
+   the code package (→ `<slug>_model/`), the objective sense and cornflow yes/no.
+   Every later skill reads those values.
+4. *(Recommended)* List the project's domain words in the lock's
+   `"forbidden_terms"` (e.g. `["vehicle", "depot", "acme"]`). `promote` then refuses
+   to send any file that mentions them back to the kit. The slug and package from §0
+   are blocked automatically.
+
+### 4.3 Work the phases
+
+- Invoke each phase skill in order (`/p1-formalize`, `/p2-data-model`, …), or ask
+  Claude to "use skill `p3-solution-checker`". Each skill names its inputs, its
+  template(s), its steps and when it is done.
+- P7 is two skills: `/digest-paper <path-to-pdf> [focus]` once per source, then
+  `/synthesize-theory`. P11 (optional) is `/paper-litreview` then
+  `/paper-write <journal>`.
+- **Governance loop:** after each phase, ask Claude to invoke `methodology-curator`
+  (it records progress in the registry and refreshes the template). Before moving
+  to the next phase, ask it to run `methodology-auditor` (read-only drift report).
+- The curator is *expected* to improve templates in place. Those edits show up as
+  `local` in `kit.py status` and can be promoted later (§4.5).
+
+### 4.4 Pull kit improvements into a project
+
+```bash
+git -C ../methodology-kit pull
+python ../methodology-kit/kit.py status .            # what differs, per file
+python ../methodology-kit/kit.py update . --dry-run  # what would change
+python ../methodology-kit/kit.py update .
+```
+
+- `upstream` files are overwritten; `local` files are left alone; files the kit
+  added are copied; files the kit dropped are deleted if you never touched them;
+  files you deleted are restored.
+- Each `conflict` gets a `<file>.kit-new` next to it (exit code 1). Merge it into
+  `<file>` by hand (or ask Claude to merge it), then:
+  ```bash
+  python ../methodology-kit/kit.py resolve . docs/methodology/templates/report.template.tex
+  ```
+  This deletes the `.kit-new` file and records the merge. Don't commit `.kit-new`
+  files.
+- Read `CHANGELOG.md` for the version jump. A **major** bump means names or layout
+  changed and the registry may need a decision-log entry.
+- Commit the updated files and lock file in the project.
+
+### 4.5 Send improvements from a project back to the kit
+
+When a template or skill matured during a project in a way that helps *any*
+problem:
+
+```bash
+python ../methodology-kit/kit.py status .                    # `local` = candidates
+python ../methodology-kit/kit.py promote .                   # preview diffs
+python ../methodology-kit/kit.py promote . <file> --apply    # copy selected files
+```
+
+- Files with case-specific terms (`forbidden_terms` + the §0 slug/package) are
+  **blocked**. Rewrite those passages with `<PLACEHOLDER>`s first, or use `--force`
+  if a term is a false positive.
+- `conflict` files are blocked until you `update` and merge.
+- Then finish in the kit repo:
+  ```bash
+  cd ../methodology-kit
+  python kit.py doctor --forbid <domain words of that project>
+  python -m unittest discover tests
+  # bump VERSION, add a CHANGELOG entry, commit, open a PR
+  ```
+- Other projects receive the change on their next `update`.
+
+### 4.6 Adopt the kit in a repo that already has the methodology
+
+Use this for the original case-study repository, or any repo seeded by hand-copying
+the kit:
+
+```bash
+python ../methodology-kit/kit.py install . --adopt
+python ../methodology-kit/kit.py status .
+```
+
+`--adopt` keeps every differing file and marks it `local`; the existing registry is
+never touched. Then go through the `local` files. Where only case references differ
+(e.g. `docs/<case>/` instead of `docs/<problem>/`), it is usually best to take the
+kit version: restore it with `git checkout`/delete the file and run `update`, and
+rely on §0 Project binding instead. Promote the files that contain real
+improvements.
+
+### 4.7 Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `/p0-intake` not listed | Start a new Claude Code session (skills are discovered at session start). |
+| Skill names collide with the project's own skills | `install` reports the clash. Rename the project skill, or `--adopt` and merge by hand. |
+| Every file shows `local` after a fresh clone on Windows | Shouldn't happen: hashes ignore CRLF/LF. Check that a formatter didn't rewrite the files (e.g. Black on templates). |
+| `update` exits with code 1 | There are conflicts. Merge each `.kit-new` and `resolve`. |
+| `promote` says `blocked` | A forbidden/case term was found. Generalize the text or use `--force`. |
+| `error: … has no .methodology-kit.lock.json` | Run `install` first (or `install --adopt` for an existing setup). |
+
+---
+
+## 5. Core conventions (details in the playbook)
 
 - **Two layers per artifact.** Everything you make has an *instance* (your problem's
   concrete artifact) and a *template* (its generalized, reusable form). The curator
   keeps the template layer in sync.
 - **English** for all generated content (docs, LaTeX, comments).
 - **Model naming (hard rule).** Parameters **UPPERCASE**, decision variables
-  **lowercase**, sets calligraphic — so data vs decisions is obvious at a glance.
+  **lowercase**, sets calligraphic.
 - **Requirement traceability.** Each requirement gets a stable `[RQxx]` ID in P1;
   the P3 checker verifies them one-to-one (`check_rqXX`).
 - **Solution checking.** On cornflow projects, reuse `ExperimentCore.check()` (it
-  auto-runs every `check_*` method; empty result ⇒ feasible). A dependency-free
-  fallback is included.
+  auto-runs every `check_*` method; an empty result means feasible). The checker
+  template also ships a dependency-free fallback.
 - **Visualization** is a *contract* (`visualize(instance, solution, out_path)`) with
-  pluggable static/dynamic backends — the medium is chosen per case.
+  pluggable static and dynamic backends; the medium is chosen per case.
+- **Experiments** are systematic: every run passes the P3 checker, is logged twice
+  (JSON + CSV ledger), and is compared with one fixed gap convention plus the
+  absolute Δ.
 
-## Dependencies (code phases P2/P3/P6/P7)
+## 6. Dependencies of the project code (phases P2–P9)
 
-- Python 3.10+ (standard library covers P2/P3).
-- For the MILP (P6): `pyomo` + a solver — **Gurobi** (`gurobipy`, pin the major
+- Python 3.10+ (the standard library covers P2/P3 and the P9 harness).
+- For the MILP (P6): `pyomo` + a solver. Use **Gurobi** (`gurobipy`; pin the major
   version to your local Gurobi **license**) or the license-free **HiGHS** (`highspy`).
-- Optional: `jsonschema` (validate instances/solutions against the schemas).
+- P4 static backend: `matplotlib`. Optional: `jsonschema` (validate instances and
+  solutions against the schemas); `cornflow-client` if the project is a cornflow app.
+- LaTeX docs: a TeX distribution with `pdflatex`.
 
 ```bash
-pip install pyomo jsonschema
+pip install pyomo jsonschema matplotlib
 pip install "gurobipy<13"     # match your Gurobi license major version, OR:
 pip install highspy           # license-free alternative
 ```
 
-## Governance agents
+## 7. Maintaining the kit
 
-- **`methodology-curator`** (read/write) — after concrete work is produced, records
-  progress in `registry.md` and extracts/updates the matching template. Sole writer
-  of the registry and templates.
-- **`methodology-auditor`** (read-only) — audits consistency/fidelity between
-  templates, artifacts, and the registry; reports fixes for the curator.
-
----
-
-*Keep this kit in sync if the methodology evolves in the source project: re-export
-`docs/methodology/` (playbook + templates), `.claude/skills/`, and `.claude/agents/`,
-and reset `registry.md`'s case-study and decision-log sections.*
+- `python kit.py doctor [--forbid TERM ...]` checks that skill and agent frontmatter
+  names match their folders and files, that agents referenced by skills exist, that
+  every `templates/…` path and `pN-…` skill mentioned anywhere exists, that registry
+  asset rows point at shipped files, and (optionally) that no forbidden term appears.
+- `python -m unittest discover tests` tests `kit.py` against a disposable copy of
+  the kit.
+- Versioning: **major** = a phase, a skill/agent name or the file layout changes;
+  **minor** = new templates, skills or guidance; **patch** = fixes. Record every
+  release in `CHANGELOG.md`.
+- Keep the shipped `registry.md` blank in §0, §B and §C. Only §A (the asset list)
+  carries content.

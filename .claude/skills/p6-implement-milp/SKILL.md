@@ -16,9 +16,10 @@ Turn the P5 formulation into runnable code.
 - The P2 generator and schema, and the P3 solution schema (`<problem>_model/`).
 
 ## Steps
-1. Choose the solver stack. For this project the decision is **Pyomo + Gurobi**
-   (via `SolverFactory("gurobi_direct")`); Pyomo + HiGHS is the license-free
-   fallback. Record the choice as a decision.
+1. Choose the solver stack. The kit default is **Pyomo + Gurobi**
+   (via `SolverFactory("gurobi_direct")`); Pyomo + HiGHS (`appsi_highs`) is the
+   license-free fallback. Record the choice as a decision and in the registry's
+   Project binding.
 2. Implement the model in the problem's code package
    (`<problem>_model/milp_model.py`), reading instances from the generator's
    JSON. Keep the code's sets/params/vars named as in the formulation.
@@ -38,7 +39,8 @@ Turn the P5 formulation into runnable code.
 
 ## Governance
 - Invoke `methodology-curator` to record P6 and refresh the implementation
-  template. Use the built-in `verify` skill to exercise the model end-to-end.
+  template. Exercise the model end-to-end before closing the phase: generate an
+  instance (P2) → solve → extract to the P3 solution schema → run the P3 checker.
 
 ## Next
 - P7 method review & transfer (skills `digest-paper` + `synthesize-theory`).

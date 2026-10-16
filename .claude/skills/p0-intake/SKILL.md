@@ -26,14 +26,20 @@ principle and the phase list.
 4. Record the answers and write a short **scoped brief** (context + resolved
    questions + explicit out-of-scope notes) in the problem's docs folder
    (e.g. `docs/<problem>/`).
+5. **Fix the Project binding** (registry §0): choose the problem slug (it names
+   `docs/<problem>/`), the code package (`<problem>_model/`), the objective
+   sense, and whether the code is a cornflow app. Every later skill resolves
+   `<problem>` / `<problem>_model` from that table.
 
 ## Done when
 - The raw statement and clarifications are captured, and the brief has enough to
   fill P1's Decision / Requirements / Objective / Input without further guesswork.
+- Registry §0 (Project binding) has no `<…>` left except fields decided later
+  (e.g. the solver stack, fixed in P6).
 
 ## Governance
-- Invoke `methodology-curator` to record P0 status and any scoping decisions in
-  `docs/methodology/registry.md`.
+- Invoke `methodology-curator` to record P0 status, the Project binding, and any
+  scoping decisions in `docs/methodology/registry.md`.
 
 ## Next
 - P1 formalization (`p1-formalize`).

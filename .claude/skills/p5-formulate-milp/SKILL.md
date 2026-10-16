@@ -36,8 +36,9 @@ parameters with sub/superscripts — never by lowercasing a parameter.
 4. Wire into `main.tex` and compile.
 
 ## Optional agent
-- For a hard/ambiguous model, spawn a panel that drafts alternative formulations
-  and pick the best (a `milp-modeler` agent), rather than committing to one.
+- For a hard/ambiguous model, spawn a panel of general-purpose subagents that
+  draft alternative formulations and pick the best, rather than committing to one.
+  (No dedicated `milp-modeler` agent ships with the kit.)
 
 ## Done when
 - The formulation compiles, follows the template style (interleaved groups), and

@@ -39,7 +39,7 @@ Document the algorithm(s) and the results, and close the loop on the methodology
    improve for the next problem.
 
 ## Reusable asset
-- Extract/refresh the report template on the first run.
+- Refresh `templates/report.template.tex` if the report's structure generalized.
 
 ## Done when
 - The report compiles (if LaTeX), documents both the algorithm(s) and the P9

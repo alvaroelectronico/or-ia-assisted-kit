@@ -12,6 +12,12 @@ of any single case — templates carry `<PLACEHOLDER>`s, skills refer to a gener
 
 > All methodology content is written in **English**.
 
+> **Resolving placeholders.** Skills, agents and templates refer to a generic
+> `<problem>` (docs folder `docs/<problem>/`) and `<problem>_model/` (code
+> package). Their concrete values for this repository live in the registry's
+> **§0 Project binding** table, fixed during P0. Always read it before acting
+> on a phase.
+
 ---
 
 ## 1. Core principle — two layers per artifact
@@ -210,6 +216,13 @@ the *method* honest and reusable:
 Typical loop: do the concrete phase work → invoke `methodology-curator` to
 record + systematize → periodically invoke `methodology-auditor` to check for
 drift and gaps.
+
+**Kit-managed files.** In a repository that installed the methodology kit, the
+playbook, templates, skills and agents are *kit-managed*: they are listed in
+`.methodology-kit.lock.json` at the repo root. Improving them locally is
+expected (that is the template layer maturing); `kit.py status` shows what
+diverged and `kit.py promote` sends generic improvements back to the kit. The
+registry is *not* kit-managed — it belongs to this repository's case study.
 
 ---
 

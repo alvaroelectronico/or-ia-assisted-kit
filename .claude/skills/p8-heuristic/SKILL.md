@@ -38,8 +38,10 @@ Design a heuristic that exploits the problem's cost lever, and implement it.
   runners-up).
 
 ## Reusable asset
-- Extract a heuristic-design template (constructive + neighborhood + acceptance
-  scaffold) on the first run.
+- Start from `docs/methodology/templates/heuristic-design.template.py`
+  (constructive builder + deterministic evaluator + iterated-greedy/local-search
+  loop) and `templates/algorithm-doc.template.tex` for `heuristic.tex`; refresh
+  them if the design generalizes.
 
 ## Done when
 - The heuristic returns solutions that pass the **P3 solution checker** on all

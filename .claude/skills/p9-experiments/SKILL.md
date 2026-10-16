@@ -46,8 +46,10 @@ Implement `<problem>_model/experiments.py` from the runner template:
 - **Cache the MILP baseline**: don't re-run it while iterating on a heuristic;
   pair each heuristic run against the cached baseline by `(instance)`. Declare the
   cache stale if the MILP changes.
-- **Gap** `= (MILP_obj − method_obj) / MILP_obj` (>0 ⇒ method beats the MILP
-  objective, for our minimisation). ALWAYS cross-read the **absolute Δ** too —
+- **Gap** `= (MILP_obj − method_obj) / MILP_obj` for a minimisation (>0 ⇒ method
+  beats the MILP objective); flip the numerator for a maximisation so that >0
+  still means "method is better". Use the objective sense recorded in the
+  registry's Project binding. ALWAYS cross-read the **absolute Δ** too —
   the relative gap blows up when the baseline ≈ 0.
 - **Noise floor & honesty**: report run-to-run variance; a delta below it is noise,
   not an improvement. If the MILP is unconverged at scale, a heuristic "win" means
