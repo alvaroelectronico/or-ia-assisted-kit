@@ -16,7 +16,7 @@ Version: see [`VERSION`](VERSION) · history: [`CHANGELOG.md`](CHANGELOG.md).
 ## 1. What's inside
 
 ```
-methodology-kit/
+or-ia-assisted-kit/
   README.md                ← this file: what the kit is + how to reuse it
   VERSION, CHANGELOG.md    ← kit version (semver) and release notes
   kit.py                   ← install / status / update / resolve / promote / doctor
@@ -122,38 +122,30 @@ paths below assume the kit is cloned **next to** your projects:
 
 ```
 repos/
-  methodology-kit/      ← the kit repo
+  or-ia-assisted-kit/   ← the kit repo
   my-new-problem/       ← a project that uses it
 ```
 
-### 4.1 One time: publish the kit as its own repository
-
-The kit currently lives in `methodology-kit/` inside the case-study repository. To
-extract it **with its history** into a new repository:
+### 4.1 One time: get the kit
 
 ```bash
-# in the case-study repo (commit the kit changes first)
-git subtree split --prefix=methodology-kit -b methodology-kit-export
-
-# create an empty remote repo (e.g. on GitHub: <org>/methodology-kit), then:
-git push <remote-url-of-new-repo> methodology-kit-export:main
-
-# clone it next to your projects
-cd ..
-git clone <remote-url-of-new-repo> methodology-kit
-cd methodology-kit
+cd repos                               # the folder that holds your projects
+git clone https://github.com/alvaroelectronico/or-ia-assisted-kit.git
+cd or-ia-assisted-kit
 python -m unittest discover tests      # kit.py tests
 python kit.py doctor                   # kit self-consistency
 ```
 
-From then on, **edit generic assets in the kit repo** (or promote them from a
-project, §4.5), never by copying files by hand.
+The kit was extracted, with its history, from the warehouse case-study repository
+(`parfois-calculo-previo-almacen`), which now uses it like any other project.
+**Edit generic assets in the kit repo** (or promote them from a project, §4.5),
+never by copying files by hand.
 
 ### 4.2 Start a new project with the kit
 
 ```bash
 cd ../my-new-problem                   # an existing git repo (can be empty)
-python ../methodology-kit/kit.py install .
+python ../or-ia-assisted-kit/kit.py install .
 ```
 
 This:
@@ -203,10 +195,10 @@ Then:
 ### 4.4 Pull kit improvements into a project
 
 ```bash
-git -C ../methodology-kit pull
-python ../methodology-kit/kit.py status .            # what differs, per file
-python ../methodology-kit/kit.py update . --dry-run  # what would change
-python ../methodology-kit/kit.py update .
+git -C ../or-ia-assisted-kit pull
+python ../or-ia-assisted-kit/kit.py status .            # what differs, per file
+python ../or-ia-assisted-kit/kit.py update . --dry-run  # what would change
+python ../or-ia-assisted-kit/kit.py update .
 ```
 
 - `upstream` files are overwritten; `local` files are left alone; files the kit
@@ -215,7 +207,7 @@ python ../methodology-kit/kit.py update .
 - Each `conflict` gets a `<file>.kit-new` next to it (exit code 1). Merge it into
   `<file>` by hand (or ask Claude to merge it), then:
   ```bash
-  python ../methodology-kit/kit.py resolve . docs/methodology/templates/report.template.tex
+  python ../or-ia-assisted-kit/kit.py resolve . docs/methodology/templates/report.template.tex
   ```
   This deletes the `.kit-new` file and records the merge. Don't commit `.kit-new`
   files.
@@ -229,9 +221,9 @@ When a template or skill matured during a project in a way that helps *any*
 problem:
 
 ```bash
-python ../methodology-kit/kit.py status .                    # `local` = candidates
-python ../methodology-kit/kit.py promote .                   # preview diffs
-python ../methodology-kit/kit.py promote . <file> --apply    # copy selected files
+python ../or-ia-assisted-kit/kit.py status .                    # `local` = candidates
+python ../or-ia-assisted-kit/kit.py promote .                   # preview diffs
+python ../or-ia-assisted-kit/kit.py promote . <file> --apply    # copy selected files
 ```
 
 - Files with case-specific terms (`forbidden_terms` + the §0 slug/package) are
@@ -240,7 +232,7 @@ python ../methodology-kit/kit.py promote . <file> --apply    # copy selected fil
 - `conflict` files are blocked until you `update` and merge.
 - Then finish in the kit repo:
   ```bash
-  cd ../methodology-kit
+  cd ../or-ia-assisted-kit
   python kit.py doctor --forbid <domain words of that project>
   python -m unittest discover tests
   # bump VERSION, add a CHANGELOG entry, commit, open a PR
@@ -253,8 +245,8 @@ Use this for the original case-study repository, or any repo seeded by hand-copy
 the kit:
 
 ```bash
-python ../methodology-kit/kit.py install . --adopt
-python ../methodology-kit/kit.py status .
+python ../or-ia-assisted-kit/kit.py install . --adopt
+python ../or-ia-assisted-kit/kit.py status .
 ```
 
 `--adopt` keeps every differing file and marks it `local`; the existing registry is

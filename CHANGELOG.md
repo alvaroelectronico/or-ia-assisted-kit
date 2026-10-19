@@ -4,6 +4,15 @@ All notable changes to the methodology kit. Versions follow semver:
 **major** = a phase, skill/agent name or file layout changes (targets must
 adapt); **minor** = new templates/skills or new guidance; **patch** = fixes.
 
+## 1.1.1 — 2026-10-19
+
+- The kit now lives in its own repository,
+  `https://github.com/alvaroelectronico/or-ia-assisted-kit`; README paths use the
+  sibling folder `../or-ia-assisted-kit/` and §4.1 explains how to clone it
+  (the extraction steps were done once and removed).
+- Internal identifiers are unchanged (`.methodology-kit.lock.json`, the
+  `methodology-kit` CLAUDE.md markers), so existing installs keep working.
+
 ## 1.1.0 — 2026-10-16
 
 - Added `kit.py` (install / status / update / resolve / promote / doctor) and a
